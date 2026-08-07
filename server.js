@@ -11,6 +11,12 @@ import googleRoutes from "./routes/googleRoutes.js";
 import "./config/passport.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import cartRoutes from "./routes/cartRoutes.js";
+import wishlistRoutes from "./routes/wishlistRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
+
+import userRoutes from "./routes/userRoutes.js";
 
 const app = express();
 
@@ -37,7 +43,12 @@ app.use("/api/auth", authRoutes);
 app.use("/api/auth", googleRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/reviews", reviewRoutes);
 
+app.use("/api/users", userRoutes);
 // Home Route
 app.get("/", (req, res) => {
   res.send("Product CRUD API Running...");

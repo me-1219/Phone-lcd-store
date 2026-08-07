@@ -1,46 +1,47 @@
 import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
-  {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-
-    products: [
-      {
-        product: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
+    {
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
         },
-
-        quantity: Number,
-
-        price: Number,
-      },
-    ],
-
-    totalPrice: {
-      type: Number,
-      required: true,
+        items: [
+            {
+                product: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Product",
+                    required: true,
+                },
+                quantity: { type: Number, required: true, min: 1 },
+                priceAtOrder: { type: Number, required: true },
+            },
+        ],
+        totalAmount: { type: Number, required: true },
+        shippingAddress: {
+            street: String,
+            city: String,
+            region: String,
+            country: String,
+        },
+        orderStatus: {
+            type: String,
+            enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
+            default: "pending",
+        },
+        paymentStatus: {
+            type: String,
+            enum: ["paid", "unpaid", "refunded"],
+            default: "unpaid",
+        },
+        paymentMethod: {
+            type: String,
+            enum: ["telebirr", "cod", "card"],
+            default: "cod",
+        },
     },
-
-    paymentMethod: {
-      type: String,
-      enum: ["Cash", "Telebirr", "CBE"],
-      default: "Cash",
-    },
-
-    status: {
-      type: String,
-      enum: ["Pending", "Processing", "Delivered", "Cancelled"],
-      default: "Pending",
-    },
-  },
-  {
-    timestamps: true,
-  }
+    { timestamps: true }
 );
 
 export default mongoose.model("Order", orderSchema);

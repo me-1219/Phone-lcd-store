@@ -12,19 +12,31 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+
   phone: {
     type: String,
     trim: true,
   },
+
   address: {
     street: String,
     city: String,
     region: String,
     country: String,
   },
-  password: String,
+
+  password: {
+    type: String,
+    required: true,
+  },
 
   googleId: String,
+
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
 
   isVerified: {
     type: Boolean,
@@ -32,7 +44,6 @@ const userSchema = new mongoose.Schema({
   },
 
   verificationCode: String,
-
   verificationCodeExpires: Date,
 
   resetPasswordCode: String,
