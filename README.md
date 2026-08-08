@@ -131,7 +131,6 @@ The system provides product and category management, inventory tracking, authent
 * **dotenv**
 * **Nodemailer**
 * **Nodemon**
-
 ---
 
 # 🏗️ Backend Architecture
@@ -253,7 +252,7 @@ misgie-lcd-api/
 ## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/misgie-lcd-api.git
+git clone https://github.com/me-1219/Phone-lcd-store
 cd misgie-lcd-api
 ```
 
