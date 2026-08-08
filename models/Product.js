@@ -82,6 +82,10 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    reorderPoint: {
+      type: Number,
+      default: 5, // alert when stock falls at or below this
+    },
   },
   {
     timestamps: true,

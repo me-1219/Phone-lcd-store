@@ -1,6 +1,7 @@
 import Order from "../models/Order.js";
 import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
+import { adjustStock } from "../utils/inventoryService.js";
 
 // =========================
 // Create order FROM the user's cart
@@ -58,10 +59,25 @@ export const createOrder = async (req, res) => {
             paymentMethod: paymentMethod || "cod",
         });
 
-        // Deduct stock for each product
-        for (const item of orderItems) {
-            await Product.findByIdAndUpdate(item.product, {
-                $inc: { stock: -item.quantity },
+        // Deduct stock for each product — centralized + audited via adjustStock()
+        try {
+            for (const item of orderItems) {
+                await adjustStock({
+                    productId: item.product,
+                    quantityChange: -item.quantity,
+                    type: "sale",
+                    reason: "Order placed",
+                    referenceOrder: order._id,
+                    performedBy: req.user._id,
+                });
+            }
+        } catch (stockError) {
+            // Roll back the order if stock adjustment fails partway (e.g. race condition
+            // where stock dropped between the initial check and now)
+            await Order.findByIdAndDelete(order._id);
+            return res.status(400).json({
+                success: false,
+                message: `Order could not be completed: ${stockError.message}`,
             });
         }
 
@@ -147,10 +163,15 @@ export const cancelOrder = async (req, res) => {
             });
         }
 
-        // Restock items
+        // Restock items — centralized + audited via adjustStock()
         for (const item of order.items) {
-            await Product.findByIdAndUpdate(item.product, {
-                $inc: { stock: item.quantity },
+            await adjustStock({
+                productId: item.product,
+                quantityChange: item.quantity,
+                type: "return",
+                reason: "Order cancelled by user",
+                referenceOrder: order._id,
+                performedBy: req.user._id,
             });
         }
 
@@ -216,16 +237,28 @@ export const updateOrderStatus = async (req, res) => {
             return res.status(404).json({ success: false, message: "Order not found." });
         }
 
-        // If admin cancels an order that wasn't already cancelled, restock
+        // If admin cancels an order that wasn't already cancelled, restock —
+        // centralized + audited via adjustStock()
         if (orderStatus === "cancelled" && order.orderStatus !== "cancelled") {
             for (const item of order.items) {
-                await Product.findByIdAndUpdate(item.product, {
-                    $inc: { stock: item.quantity },
+                await adjustStock({
+                    productId: item.product,
+                    quantityChange: item.quantity,
+                    type: "return",
+                    reason: "Order cancelled by admin",
+                    referenceOrder: order._id,
+                    performedBy: req.user._id,
                 });
             }
         }
 
         order.orderStatus = orderStatus;
+
+        // Mark payment as paid when delivered via COD (adjust to your actual payment flow)
+        if (orderStatus === "delivered" && order.paymentMethod === "cod") {
+            order.paymentStatus = "paid";
+        }
+
         await order.save();
 
         res.status(200).json({ success: true, message: "Order status updated.", data: order });
