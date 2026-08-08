@@ -179,74 +179,63 @@ Product stock should be changed through the inventory service so every stock cha
 
 ---
 
-📁 Project Structure
+## 📁 Project Structure
+
+```text
 product-crud-api/
-│
-├── client/                         # Frontend application
-│   └── ...
-│
-├── server/                         # Backend API
+├── client/                  # Frontend application
+├── server/                  # Backend API
+│   ├── app.js
+│   ├── server.js
+│   ├── package.json
 │   ├── config/
 │   │   ├── db.js
 │   │   └── passport.js
-│   │
 │   ├── controllers/
-│   │   ├── authController.js
 │   │   ├── adminController.js
+│   │   ├── authController.js
 │   │   ├── cartController.js
 │   │   ├── categoryController.js
-│   │   ├── couponController.js
 │   │   ├── inventoryController.js
-│   │   ├── notificationController.js
 │   │   ├── orderController.js
 │   │   ├── productController.js
 │   │   ├── reviewController.js
 │   │   ├── userController.js
 │   │   └── wishlistController.js
-│   │
 │   ├── middleware/
-│   │   └── authMiddleware.js
-│   │
+│   │   ├── adminMiddleware.js
+│   │   ├── authMiddleware.js
+│   │   └── errorMiddleware.js
 │   ├── models/
-│   │   ├── Cart.js
-│   │   ├── Category.js
-│   │   ├── Coupon.js
-│   │   ├── Notification.js
-│   │   ├── Order.js
+│   │   ├── cart.js
+│   │   ├── category.js
+│   │   ├── order.js
 │   │   ├── Product.js
-│   │   ├── Review.js
+│   │   ├── review.js
 │   │   ├── StockMovement.js
 │   │   ├── User.js
-│   │   └── Wishlist.js
-│   │
+│   │   ├── wishlist.js
+│   │   └── wishlist.js
 │   ├── routes/
 │   │   ├── adminRoutes.js
 │   │   ├── authRoutes.js
 │   │   ├── cartRoutes.js
 │   │   ├── categoryRoutes.js
-│   │   ├── couponRoutes.js
 │   │   ├── googleRoutes.js
 │   │   ├── inventoryRoutes.js
-│   │   ├── notificationRoutes.js
 │   │   ├── orderRoutes.js
 │   │   ├── productRoutes.js
 │   │   ├── reviewRoutes.js
 │   │   ├── userRoutes.js
 │   │   └── wishlistRoutes.js
-│   │
-│   ├── utils/
-│   │   ├── couponService.js
-│   │   ├── inventoryService.js
-│   │   ├── notificationService.js
-│   │   └── sendEmail.js
-│   │
-│   ├── app.js
-│   ├── server.js
-│   └── package.json
-│
-├── .env.example
-├── .gitignore
-└── README.md
+│   ├── scripts/
+│   │   └── createAdmin.js
+│   └── utils/
+│       ├── inventoryService.js
+│       └── sendEmail.js
+├── README.md
+└── .gitignore
+```
 
 # ⚙️ Installation & Setup
 
