@@ -40,6 +40,12 @@ const orderSchema = new mongoose.Schema(
             enum: ["telebirr", "cod", "card"],
             default: "cod",
         },
+        couponCode: { 
+            type: String
+         },
+        discountAmount: { 
+            type: Number, default: 0
+         },
     },
     { timestamps: true }
 );

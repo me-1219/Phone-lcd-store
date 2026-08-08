@@ -19,6 +19,8 @@ import reviewRoutes from "./routes/reviewRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import couponRoutes from "./routes/couponRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 const app = express();
 
 // Connect to MongoDB
@@ -52,6 +54,8 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/coupons", couponRoutes);
+app.use("/api/notifications", notificationRoutes);
 // Home Route
 app.get("/", (req, res) => {
   res.send("Product CRUD API Running...");

@@ -2,6 +2,8 @@ import Order from "../models/Order.js";
 import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
 import { adjustStock } from "../utils/inventoryService.js";
+import { validateAndCalculateDiscount } from "../utils/couponService.js";
+import { notifyUser } from "../utils/notificationService.js";
 
 // =========================
 // Create order FROM the user's cart
@@ -50,11 +52,27 @@ export const createOrder = async (req, res) => {
             totalAmount += priceAtOrder * item.quantity;
         }
 
+        let discountAmount = 0;
+        let appliedCouponCode = null;
+
+        if (req.body.couponCode) {
+            const { coupon, discountAmount: calculatedDiscount } =
+                await validateAndCalculateDiscount(req.body.couponCode, totalAmount);
+
+            discountAmount = calculatedDiscount;
+            appliedCouponCode = coupon.code;
+
+            coupon.usedCount += 1;
+            await coupon.save();
+        }
+
         // Create the order
         const order = await Order.create({
             user: req.user._id,
             items: orderItems,
-            totalAmount,
+            totalAmount: totalAmount - discountAmount,
+            couponCode: appliedCouponCode,
+            discountAmount,
             shippingAddress,
             paymentMethod: paymentMethod || "cod",
         });
@@ -260,6 +278,13 @@ export const updateOrderStatus = async (req, res) => {
         }
 
         await order.save();
+
+        await notifyUser({
+            userId: order.user,
+            type: "order_status",
+            message: `Your order #${order._id.toString().slice(-6)} is now ${orderStatus}.`,
+            relatedOrder: order._id,
+        });
 
         res.status(200).json({ success: true, message: "Order status updated.", data: order });
     } catch (error) {
