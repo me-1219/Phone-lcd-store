@@ -179,73 +179,74 @@ Product stock should be changed through the inventory service so every stock cha
 
 ---
 
-# 📁 Project Structure
-
-```text
-misgie-lcd-api/
+📁 Project Structure
+product-crud-api/
 │
-├── config/
-│   ├── db.js
-│   └── passport.js
+├── client/                         # Frontend application
+│   └── ...
 │
-├── controllers/
-│   ├── authController.js
-│   ├── adminController.js
-│   ├── cartController.js
-│   ├── categoryController.js
-│   ├── couponController.js
-│   ├── inventoryController.js
-│   ├── notificationController.js
-│   ├── orderController.js
-│   ├── productController.js
-│   ├── reviewController.js
-│   ├── userController.js
-│   └── wishlistController.js
+├── server/                         # Backend API
+│   ├── config/
+│   │   ├── db.js
+│   │   └── passport.js
+│   │
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── adminController.js
+│   │   ├── cartController.js
+│   │   ├── categoryController.js
+│   │   ├── couponController.js
+│   │   ├── inventoryController.js
+│   │   ├── notificationController.js
+│   │   ├── orderController.js
+│   │   ├── productController.js
+│   │   ├── reviewController.js
+│   │   ├── userController.js
+│   │   └── wishlistController.js
+│   │
+│   ├── middleware/
+│   │   └── authMiddleware.js
+│   │
+│   ├── models/
+│   │   ├── Cart.js
+│   │   ├── Category.js
+│   │   ├── Coupon.js
+│   │   ├── Notification.js
+│   │   ├── Order.js
+│   │   ├── Product.js
+│   │   ├── Review.js
+│   │   ├── StockMovement.js
+│   │   ├── User.js
+│   │   └── Wishlist.js
+│   │
+│   ├── routes/
+│   │   ├── adminRoutes.js
+│   │   ├── authRoutes.js
+│   │   ├── cartRoutes.js
+│   │   ├── categoryRoutes.js
+│   │   ├── couponRoutes.js
+│   │   ├── googleRoutes.js
+│   │   ├── inventoryRoutes.js
+│   │   ├── notificationRoutes.js
+│   │   ├── orderRoutes.js
+│   │   ├── productRoutes.js
+│   │   ├── reviewRoutes.js
+│   │   ├── userRoutes.js
+│   │   └── wishlistRoutes.js
+│   │
+│   ├── utils/
+│   │   ├── couponService.js
+│   │   ├── inventoryService.js
+│   │   ├── notificationService.js
+│   │   └── sendEmail.js
+│   │
+│   ├── app.js
+│   ├── server.js
+│   └── package.json
 │
-├── middleware/
-│   └── authMiddleware.js
-│
-├── models/
-│   ├── Cart.js
-│   ├── Category.js
-│   ├── Coupon.js
-│   ├── Notification.js
-│   ├── Order.js
-│   ├── Product.js
-│   ├── Review.js
-│   ├── StockMovement.js
-│   ├── User.js
-│   └── Wishlist.js
-│
-├── routes/
-│   ├── adminRoutes.js
-│   ├── authRoutes.js
-│   ├── cartRoutes.js
-│   ├── categoryRoutes.js
-│   ├── couponRoutes.js
-│   ├── googleRoutes.js
-│   ├── inventoryRoutes.js
-│   ├── notificationRoutes.js
-│   ├── orderRoutes.js
-│   ├── productRoutes.js
-│   ├── reviewRoutes.js
-│   ├── userRoutes.js
-│   └── wishlistRoutes.js
-│
-├── utils/
-│   ├── couponService.js
-│   ├── inventoryService.js
-│   ├── notificationService.js
-│   └── sendEmail.js
-│
-├── app.js
-├── package.json
-├── .env
+├── .env.example
 ├── .gitignore
 └── README.md
-```
-
----
 
 # ⚙️ Installation & Setup
 
@@ -253,7 +254,7 @@ misgie-lcd-api/
 
 ```bash
 git clone https://github.com/me-1219/Phone-lcd-store
-cd misgie-lcd-api
+cd product-crud-api
 ```
 
 ## 2. Install Dependencies
