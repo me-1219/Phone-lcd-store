@@ -1,0 +1,324 @@
+import { useState, useEffect, useCallback } from "react";
+import { Plus, Pencil, Trash2, ImageOff } from "lucide-react";
+import Button from "../../components/common/Button";
+import Input from "../../components/common/Input";
+import Modal from "../../components/common/Modal";
+import Badge from "../../components/common/Badge";
+import Spinner from "../../components/common/Spinner";
+import ErrorMessage from "../../components/common/ErrorMessage";
+import EmptyState from "../../components/common/EmptyState";
+import { formatPrice } from "../../utils/formatPrice";
+import { QUALITY_GRADES, SCREEN_TYPES } from "../../utils/constants";
+import * as productService from "../../services/productService";
+import * as categoryService from "../../services/categoryService";
+
+const EMPTY_FORM = {
+  name: "", description: "", brand: "", compatibleModels: "", qualityGrade: "",
+  screenType: "", category: "", sku: "", price: "", discountPrice: "",
+  stock: "", images: "", featured: false,
+};
+
+const AdminProducts = () => {
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [formError, setFormError] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const loadCategories = () => categoryService.getCategories().then((res) => setCategories(res.data));
+
+  const loadProducts = useCallback(async (page = 1) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await productService.getProducts({ page, limit: 15 });
+      setProducts(res.data);
+      setPagination({ page: res.page, pages: res.pages, total: res.total });
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to load products.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadCategories();
+    loadProducts();
+  }, [loadProducts]);
+
+  const openCreate = () => {
+    setEditingId(null);
+    setForm(EMPTY_FORM);
+    setFormError("");
+    setModalOpen(true);
+  };
+
+  const openEdit = (p) => {
+    setEditingId(p._id);
+    setForm({
+      name: p.name || "", description: p.description || "", brand: p.brand || "",
+      compatibleModels: (p.compatibleModels || []).join(", "),
+      qualityGrade: p.qualityGrade || "", screenType: p.screenType || "",
+      category: p.category?._id || "", sku: p.sku || "",
+      price: p.price ?? "", discountPrice: p.discountPrice ?? "",
+      stock: p.stock ?? "", images: (p.images || []).join(", "),
+      featured: !!p.featured,
+    });
+    setFormError("");
+    setModalOpen(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFormError("");
+
+    if (!form.name || !form.category || !form.price) {
+      setFormError("Name, category, and price are required.");
+      return;
+    }
+
+    const payload = {
+      ...form,
+      compatibleModels: form.compatibleModels
+        ? form.compatibleModels.split(",").map((s) => s.trim()).filter(Boolean)
+        : [],
+      images: form.images ? form.images.split(",").map((s) => s.trim()).filter(Boolean) : [],
+      price: Number(form.price),
+      discountPrice: form.discountPrice ? Number(form.discountPrice) : undefined,
+      stock: form.stock !== "" ? Number(form.stock) : undefined,
+    };
+
+    setSaving(true);
+    try {
+      if (editingId) {
+        // Stock is intentionally omitted on edit — manage stock changes
+        // through Inventory so every change gets logged in StockMovement.
+        const { stock, ...updatePayload } = payload;
+        await productService.updateProduct(editingId, updatePayload);
+      } else {
+        await productService.createProduct(payload);
+      }
+      setModalOpen(false);
+      loadProducts(pagination.page);
+    } catch (err) {
+      setFormError(err.response?.data?.message || "Could not save product.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this product? This cannot be undone.")) return;
+    try {
+      await productService.deleteProduct(id);
+      loadProducts(pagination.page);
+    } catch (err) {
+      alert(err.response?.data?.message || "Could not delete product.");
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-semibold text-ink-950">Products</h1>
+          <p className="mt-1 text-sm text-ink-500">{pagination.total} products</p>
+        </div>
+        <Button icon={Plus} onClick={openCreate}>Add Product</Button>
+      </div>
+
+      <div className="mt-6 overflow-x-auto rounded-xl border border-border bg-white">
+        {loading ? (
+          <Spinner fullPage label="Loading products" />
+        ) : error ? (
+          <ErrorMessage message={error} onRetry={() => loadProducts(pagination.page)} />
+        ) : products.length === 0 ? (
+          <EmptyState title="No products yet" message="Add your first product to get started." />
+        ) : (
+          <table className="w-full min-w-[720px] text-sm">
+            <thead>
+              <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wide text-ink-500">
+                <th className="px-4 py-3">Product</th>
+                <th className="px-4 py-3">Category</th>
+                <th className="px-4 py-3">Grade</th>
+                <th className="px-4 py-3">Price</th>
+                <th className="px-4 py-3">Stock</th>
+                <th className="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {products.map((p) => (
+                <tr key={p._id}>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
+                        {p.images?.[0] ? (
+                          <img src={p.images[0]} alt={p.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <ImageOff className="h-4 w-4 text-ink-300" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-ink-950">{p.name}</p>
+                        <p className="font-mono-data text-xs text-ink-500">{p.sku || "—"}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-ink-700">{p.category?.name || "—"}</td>
+                  <td className="px-4 py-3">
+                    {p.qualityGrade ? <Badge variant="brand">{p.qualityGrade}</Badge> : "—"}
+                  </td>
+                  <td className="px-4 py-3 font-mono-data text-ink-950">{formatPrice(p.price)}</td>
+                  <td className="px-4 py-3">
+                    <span className={p.stock <= (p.reorderPoint ?? 5) ? "font-mono-data text-danger-500" : "font-mono-data text-ink-950"}>
+                      {p.stock}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end gap-1">
+                      <button onClick={() => openEdit(p)} className="rounded-lg p-1.5 text-ink-500 hover:bg-muted hover:text-ink-950">
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button onClick={() => handleDelete(p._id)} className="rounded-lg p-1.5 text-ink-500 hover:bg-red-50 hover:text-danger-500">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {!loading && !error && pagination.pages > 1 && (
+        <div className="mt-4 flex items-center justify-center gap-2">
+          {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((p) => (
+            <button
+              key={p}
+              onClick={() => loadProducts(p)}
+              className={`h-8 w-8 rounded-lg text-sm font-medium ${
+                p === pagination.page ? "bg-brand-600 text-white" : "text-ink-700 hover:bg-muted"
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? "Edit Product" : "Add Product"} size="lg">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {formError && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-danger-500">{formError}</p>}
+
+          <Input label="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-ink-900">Description</label>
+            <textarea
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              rows={2}
+              className="w-full rounded-lg border border-border p-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input label="Brand" value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} />
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-ink-900">Category</label>
+              <select
+                value={form.category}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                className="h-10 w-full rounded-lg border border-border px-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+              >
+                <option value="">Select category</option>
+                {categories.map((c) => (
+                  <option key={c._id} value={c._id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <Input
+            label="Compatible models (comma-separated)"
+            placeholder="iPhone 11, iPhone 11 Pro"
+            value={form.compatibleModels}
+            onChange={(e) => setForm({ ...form, compatibleModels: e.target.value })}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-ink-900">Quality Grade</label>
+              <select
+                value={form.qualityGrade}
+                onChange={(e) => setForm({ ...form, qualityGrade: e.target.value })}
+                className="h-10 w-full rounded-lg border border-border px-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+              >
+                <option value="">—</option>
+                {QUALITY_GRADES.map((g) => <option key={g} value={g}>{g}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-ink-900">Screen Type</label>
+              <select
+                value={form.screenType}
+                onChange={(e) => setForm({ ...form, screenType: e.target.value })}
+                className="h-10 w-full rounded-lg border border-border px-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+              >
+                <option value="">—</option>
+                {SCREEN_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <Input label="SKU" value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} />
+            <Input label="Price" type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+            <Input label="Discount price" type="number" value={form.discountPrice} onChange={(e) => setForm({ ...form, discountPrice: e.target.value })} />
+          </div>
+
+          {editingId ? (
+            <div className="rounded-lg bg-muted px-3 py-2.5 text-xs text-ink-500">
+              Stock is managed from the <span className="font-medium text-ink-900">Inventory</span> page so every
+              change is logged — it can't be edited here.
+            </div>
+          ) : (
+            <Input label="Opening stock" type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
+          )}
+
+          <Input
+            label="Image URLs (comma-separated)"
+            value={form.images}
+            onChange={(e) => setForm({ ...form, images: e.target.value })}
+          />
+
+          <label className="flex items-center gap-2 text-sm text-ink-700">
+            <input
+              type="checkbox"
+              checked={form.featured}
+              onChange={(e) => setForm({ ...form, featured: e.target.checked })}
+              className="h-4 w-4 accent-brand-600"
+            />
+            Featured on homepage
+          </label>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
+            <Button type="submit" loading={saving}>{editingId ? "Save Changes" : "Create Product"}</Button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
+};
+
+export default AdminProducts;

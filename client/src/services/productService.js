@@ -1,0 +1,26 @@
+import api from "./api";
+
+// filters: { category, brand, qualityGrade, screenType, compatibleModel,
+//            minPrice, maxPrice, featured, sort, page, limit }
+export const getProducts = (filters = {}) =>
+  api.get("/products", { params: filters }).then((res) => res.data);
+
+export const searchProducts = (q) =>
+  api.get("/products/search", { params: { q } }).then((res) => res.data);
+
+export const getProductsByCategory = (categoryId, filters = {}) =>
+  api
+    .get(`/products/category/${categoryId}`, { params: filters })
+    .then((res) => res.data);
+
+export const getProductById = (id) =>
+  api.get(`/products/${id}`).then((res) => res.data);
+
+export const createProduct = (data) =>
+  api.post("/products", data).then((res) => res.data);
+
+export const updateProduct = (id, data) =>
+  api.put(`/products/${id}`, data).then((res) => res.data);
+
+export const deleteProduct = (id) =>
+  api.delete(`/products/${id}`).then((res) => res.data);
