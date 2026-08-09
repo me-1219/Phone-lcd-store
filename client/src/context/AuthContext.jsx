@@ -22,9 +22,9 @@ export const AuthProvider = ({ children }) => {
 
     authService
       .getMe()
-      .then((res) => {
-        setUser(res.data);
-        localStorage.setItem("user", JSON.stringify(res.data));
+      .then((userData) => {
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
       })
       .catch(() => {
         localStorage.removeItem("token");
@@ -35,16 +35,16 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const persistSession = (data) => {
-    localStorage.setItem("token", data.token);
-    const { token, ...userData } = data;
-    localStorage.setItem("user", JSON.stringify(userData));
-    setUser(userData);
+    const { token, user } = data;
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
+    setUser(user);
   };
 
   const login = useCallback(async (credentials) => {
     const res = await authService.login(credentials);
     persistSession(res);
-    return res;
+    return res.user;
   }, []);
 
   const register = useCallback(async (payload) => {
@@ -60,6 +60,13 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    const userData = await authService.getMe();
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+    return userData;
+  }, []);
+
   const value = {
     user,
     loading,
@@ -68,6 +75,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

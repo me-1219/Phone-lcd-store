@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Search, ShoppingCart, Heart, User, Menu, LogOut } from "lucide-react";
 import MobileMenu from "./MobileMenu";
 import { CUSTOMER_NAV_LINKS } from "../../utils/constants";
+import { getDisplayName, getInitials } from "../../utils/getDisplayName";
 import { useAuth } from "../../hooks/useAuth";
 import { useContext } from "react";
 import { CartContext } from "../../context/CartContext";
@@ -102,7 +103,7 @@ const Navbar = () => {
                     onMouseLeave={() => setUserMenuOpen(false)}
                   >
                     <p className="truncate px-3 py-2 text-xs text-ink-500">
-                      Signed in as <span className="font-medium text-ink-900">{user?.name}</span>
+                      Signed in as <span className="font-medium text-ink-900">{getDisplayName(user)}</span>
                     </p>
                     <div className="my-1 border-t border-border" />
                     <Link

@@ -6,7 +6,7 @@ export const register = (data) =>
 export const login = (data) =>
   api.post("/auth/login", data).then((res) => res.data);
 
-export const getMe = () => api.get("/auth/all").then((res) => res.data);
+export const getMe = () => api.get("/users/me").then((res) => res.data);
 
 // NOTE: paths below match the endpoints listed in the backend README,
 // but request/response bodies weren't defined in our conversation —
