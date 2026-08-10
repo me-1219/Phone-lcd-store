@@ -21,10 +21,15 @@ import inventoryRoutes from "./routes/inventoryRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import couponRoutes from "./routes/couponRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
-const app = express();
 
-// Connect to MongoDB
-await connectDB();
+import path from "path";
+import { fileURLToPath } from "url";
+import uploadRoutes from "./routes/uploadRoutes.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
 
 // Middleware
 app.use(cors()); // Allow cross-origin requests
@@ -56,15 +61,24 @@ app.use("/api/inventory", inventoryRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/coupons", couponRoutes);
 app.use("/api/notifications", notificationRoutes);
+
+app.use("/api/upload", uploadRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve uploaded files
 // Home Route
 app.get("/", (req, res) => {
   res.send("Product CRUD API Running...");
 });
 
-// Server Port
-const PORT = process.env.PORT || 5000;
+const startServer = async () => {
+  await connectDB();
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+};
+
+startServer().catch((err) => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
 });

@@ -2,6 +2,7 @@ import express from "express";
 import {
     getUsers,
     getUserById,
+    getMyProfile,
     updateMyProfile,
     toggleBlockUser,
     updateUserRole,
@@ -13,6 +14,7 @@ const router = express.Router();
 
 router.use(protect);
 
+router.get("/me", getMyProfile);
 router.put("/me", updateMyProfile);
 
 router.get("/", authorize("admin"), getUsers);

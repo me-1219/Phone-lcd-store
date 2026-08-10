@@ -30,6 +30,18 @@ export const getUserById = async (req, res) => {
 };
 
 // =========================
+// User — get current authenticated profile
+// GET /api/users/me
+// =========================
+export const getMyProfile = async (req, res) => {
+    try {
+        res.status(200).json(req.user);
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// =========================
 // User — update own profile
 // PUT /api/users/me
 // =========================

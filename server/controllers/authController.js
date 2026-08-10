@@ -119,6 +119,7 @@ export const login = async (req, res) => {
         phone: user.phone,
         address: user.address,
         isVerified: user.isVerified,
+        role: user.role,
       },
     });
   } catch (err) {
