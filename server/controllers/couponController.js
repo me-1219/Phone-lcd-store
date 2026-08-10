@@ -18,7 +18,7 @@ export const createCoupon = async (req, res) => {
             expirationDate,
         } = req.body;
 
-        if (!code || !discountType || !discountValue || !expirationDate) {
+        if (!code || !discountType || discountValue === undefined || discountValue === null || !expirationDate) {
             return res.status(400).json({
                 success: false,
                 message: "code, discountType, discountValue and expirationDate are required.",

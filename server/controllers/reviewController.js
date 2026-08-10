@@ -22,7 +22,7 @@ export const createReview = async (req, res) => {
     try {
         const { productId, rating, comment } = req.body;
 
-        if (!productId || !rating) {
+        if (!productId || rating === undefined || rating === null) {
             return res.status(400).json({
                 success: false,
                 message: "productId and rating are required.",

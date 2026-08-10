@@ -24,3 +24,14 @@ export const updateProduct = (id, data) =>
 
 export const deleteProduct = (id) =>
   api.delete(`/products/${id}`).then((res) => res.data);
+
+export const bulkCreateProducts = (products) =>
+  api.post("/products/bulk", products).then((res) => res.data);
+
+export const bulkCreateProductsFromCsv = (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  return api
+    .post("/products/bulk-csv", formData, { headers: { "Content-Type": "multipart/form-data" } })
+    .then((res) => res.data);
+};

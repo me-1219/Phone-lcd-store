@@ -2,6 +2,121 @@ import Product from "../models/Product.js";
 import Category from "../models/Category.js";
 import Wishlist from "../models/Wishlist.js";
 import { notifyAllAdmins } from "../utils/notificationService.js";
+import mongoose from "mongoose";
+import { adjustStock } from "../utils/inventoryService.js";
+import { parse } from "csv-parse/sync";
+
+// =========================
+// ADMIN — Bulk product import helpers
+// Shared by both bulk endpoints (JSON array and CSV) so validation logic
+// only lives in one place.
+export const processBulkImport = async (items, adminUserId) => {
+    const results = { created: [], failed: [] };
+
+    for (let i = 0; i < items.length; i++) {
+        const row = items[i];
+        const rowLabel = row.name || `Row ${i + 1}`;
+
+        try {
+            if (!row.name || !row.category || row.price === undefined || row.price === null) {
+                results.failed.push({ row: rowLabel, reason: "Missing name, category, or price." });
+                continue;
+            }
+
+            // Category can be an ObjectId or a plain name — resolve either way
+            // so pasted JSON doesn't have to have the ID looked up first.
+            let categoryId = row.category;
+            if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+                const category = await Category.findOne({
+                    $or: [{ name: row.category }, { slug: row.category }],
+                });
+                if (!category) {
+                    results.failed.push({ row: rowLabel, reason: `Category not found: "${row.category}"` });
+                    continue;
+                }
+                categoryId = category._id;
+            } else {
+                const exists = await Category.findById(categoryId);
+                if (!exists) {
+                    results.failed.push({ row: rowLabel, reason: `Category ID not found: ${categoryId}` });
+                    continue;
+                }
+            }
+
+            if (row.sku) {
+                const skuExists = await Product.findOne({ sku: row.sku });
+                if (skuExists) {
+                    results.failed.push({ row: rowLabel, reason: `SKU already exists: ${row.sku}` });
+                    continue;
+                }
+            }
+
+            const openingStock = Number(row.stock) || 0;
+
+            const product = await Product.create({
+                name: row.name,
+                description: row.description,
+                brand: row.brand,
+                compatibleModels: Array.isArray(row.compatibleModels)
+                    ? row.compatibleModels
+                    : typeof row.compatibleModels === "string"
+                    ? row.compatibleModels.split(";").map((s) => s.trim()).filter(Boolean)
+                    : [],
+                qualityGrade: row.qualityGrade,
+                screenType: row.screenType,
+                category: categoryId,
+                sku: row.sku,
+                price: Number(row.price),
+                discountPrice: row.discountPrice ? Number(row.discountPrice) : undefined,
+                stock: 0, // set via adjustStock below so it's logged, not silent
+                images: row.images || [],
+                featured: !!row.featured,
+            });
+
+            if (openingStock > 0) {
+                await adjustStock({
+                    productId: product._id,
+                    quantityChange: openingStock,
+                    type: "purchase_receipt",
+                    reason: "Bulk import — opening stock",
+                    performedBy: adminUserId,
+                });
+            }
+
+            results.created.push({ row: rowLabel, productId: product._id });
+        } catch (err) {
+            results.failed.push({ row: rowLabel, reason: err.message });
+        }
+    }
+
+    return results;
+};
+
+// ADMIN — Bulk create products from a JSON array
+// POST /api/products/bulk
+// body: { products: [ {...}, {...} ] }
+export const bulkCreateProducts = async (req, res) => {
+    try {
+        const { products } = req.body;
+
+        if (!Array.isArray(products) || products.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Request body must include a non-empty 'products' array.",
+            });
+        }
+
+        const results = await processBulkImport(products, req.user._id);
+
+        res.status(207).json({
+            success: true,
+            message: `${results.created.length} created, ${results.failed.length} failed.`,
+            data: results,
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 // =========================
 // Create Product
 // POST /api/products
@@ -24,7 +139,7 @@ export const createProduct = async (req, res) => {
             featured
         } = req.body;
 
-        if (!name || !category || !price) {
+        if (!name || !category || price === undefined || price === null) {
             return res.status(400).json({
                 success: false,
                 message: "Name, Category and Price are required."
@@ -430,4 +545,36 @@ export const searchProducts = async (req, res) => {
 
     }
 
+};
+
+// =========================
+// ADMIN — Bulk create products from an uploaded CSV
+// POST /api/products/bulk-csv  (multipart/form-data, field: "file")
+//
+// CSV columns must match the JSON field names exactly. For
+// compatibleModels, separate multiple values with a semicolon (;) inside
+// the cell — not a comma, since commas are the CSV delimiter itself.
+// =========================
+export const bulkCreateProductsFromCsv = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: "No CSV file uploaded." });
+        }
+
+        const records = parse(req.file.buffer.toString("utf-8"), {
+            columns: true,
+            skip_empty_lines: true,
+            trim: true,
+        });
+
+        const results = await processBulkImport(records, req.user._id);
+
+        res.status(207).json({
+            success: true,
+            message: `${results.created.length} created, ${results.failed.length} failed.`,
+            data: results,
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 };

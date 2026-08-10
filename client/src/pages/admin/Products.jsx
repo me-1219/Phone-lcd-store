@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Pencil, Trash2, ImageOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, ImageOff } from "lucide-react";
 import Button from "../../components/common/Button";
 import Input from "../../components/common/Input";
 import Modal from "../../components/common/Modal";
@@ -123,6 +123,58 @@ const AdminProducts = () => {
       alert(err.response?.data?.message || "Could not delete product.");
     }
   };
+const [importOpen, setImportOpen] = useState(false);
+const [importJson, setImportJson] = useState("");
+const [importFile, setImportFile] = useState(null);
+const [importing, setImporting] = useState(false);
+const [importResults, setImportResults] = useState(null);
+const [importError, setImportError] = useState("");
+  // add handlers:
+  const handleImportJson = async () => {
+    setImportError("");
+    setImportResults(null);
+    let parsed;
+    try {
+      parsed = JSON.parse(importJson);
+    } catch {
+      setImportError("Invalid JSON — check for a trailing comma or missing bracket.");
+      return;
+    }
+    if (!Array.isArray(parsed)) {
+      setImportError("JSON must be an array of products.");
+      return;
+    }
+    setImporting(true);
+    try {
+      const res = await productService.bulkCreateProducts(parsed);
+      setImportResults(res.data);
+      loadProducts(1);
+    } catch (err) {
+      setImportError(err.response?.data?.message || "Import failed.");
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const handleImportCsv = async () => {
+    if (!importFile) {
+      setImportError("Choose a CSV file first.");
+      return;
+    }
+    setImportError("");
+    setImportResults(null);
+    setImporting(true);
+    try {
+      const res = await productService.bulkCreateProductsFromCsv(importFile);
+      setImportResults(res.data);
+      loadProducts(1);
+    } catch (err) {
+      setImportError(err.response?.data?.message || "Import failed.");
+    } finally {
+      setImporting(false);
+    }
+  };
+
 
   return (
     <div>
@@ -132,6 +184,7 @@ const AdminProducts = () => {
           <p className="mt-1 text-sm text-ink-500">{pagination.total} products</p>
         </div>
         <Button icon={Plus} onClick={openCreate}>Add Product</Button>
+        <Button variant="outline" icon={Upload} onClick={() => setImportOpen(true)}>Import</Button>
       </div>
 
       <div className="mt-6 overflow-x-auto rounded-xl border border-border bg-white">
@@ -168,7 +221,7 @@ const AdminProducts = () => {
                   </td>
                   <td className="px-4 py-3 text-ink-700">{p.category?.name || "—"}</td>
                   <td className="px-4 py-3 text-ink-700">{p.brand || "—"}</td>
-                  <td className="px-4 py-3 text-ink-700">{p.model || "—"}</td>
+                  <td className="px-4 py-3 text-ink-700">{p.compatibleModels?.join(", ") || "—"}</td>
                   <td className="px-4 py-3">
                     {p.qualityGrade ? <Badge variant="brand">{p.qualityGrade}</Badge> : "—"}
                   </td>
@@ -317,6 +370,49 @@ const AdminProducts = () => {
           </div>
         </form>
       </Modal>
+      <Modal open={importOpen} onClose={() => setImportOpen(false)} title="Bulk Import Products" size="lg">
+  <div className="flex flex-col gap-5">
+    {importError && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-danger-500">{importError}</p>}
+
+    {importResults && (
+      <div className="rounded-lg border border-border p-3 text-sm">
+        <p className="font-medium text-ink-950">
+          {importResults.created.length} created, {importResults.failed.length} failed
+        </p>
+        {importResults.failed.length > 0 && (
+          <ul className="mt-2 space-y-1 text-xs text-danger-500">
+            {importResults.failed.map((f, i) => (
+              <li key={i}>{f.row}: {f.reason}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+    )}
+
+    <div>
+      <label className="mb-1.5 block text-sm font-medium text-ink-900">Paste JSON array</label>
+      <textarea
+        value={importJson}
+        onChange={(e) => setImportJson(e.target.value)}
+        rows={8}
+        placeholder='[{ "name": "...", "category": "...", "price": 0, ... }]'
+        className="w-full rounded-lg border border-border p-3 font-mono-data text-xs focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+      />
+      <Button className="mt-2" loading={importing} onClick={handleImportJson}>Import JSON</Button>
+    </div>
+
+    <div className="border-t border-border pt-4">
+      <label className="mb-1.5 block text-sm font-medium text-ink-900">Or upload a CSV</label>
+      <input
+        type="file"
+        accept=".csv"
+        onChange={(e) => setImportFile(e.target.files[0])}
+        className="text-sm"
+      />
+      <Button className="mt-2" variant="outline" loading={importing} onClick={handleImportCsv}>Import CSV</Button>
+    </div>
+  </div>
+</Modal>
     </div>
   );
 };

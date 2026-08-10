@@ -1,2 +1,4 @@
 .env
 node_modules/
+INSTALL_BULK_IMPORT.md
+uploads/
