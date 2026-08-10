@@ -100,7 +100,36 @@ export const getProducts = async (req, res) => {
         const skip = (page - 1) * limit;
 
         const filter = { isActive: true };
-        if (req.query.category) { const category = await Category.findOne({ $or: [ { name: { $regex: req.query.category, $options: "i" } }, { slug: { $regex: req.query.category, $options: "i" } } ] }); if (!category) { return res.status(404).json({ success: false, message: "Category not found" }); } filter.category = category._id; }
+        if (req.query.q) {
+            const keyword = req.query.q.trim();
+            if (keyword) {
+                filter.$or = [
+                    { name: { $regex: keyword, $options: "i" } },
+                    { brand: { $regex: keyword, $options: "i" } },
+                    { compatibleModels: { $regex: keyword, $options: "i" } },
+                    { sku: { $regex: keyword, $options: "i" } }
+                ];
+            }
+        }
+
+        if (req.query.category) {
+            const category = await Category.findOne({
+                $or: [
+                    { name: { $regex: req.query.category, $options: "i" } },
+                    { slug: { $regex: req.query.category, $options: "i" } }
+                ]
+            });
+            if (!category) {
+                return res.status(200).json({
+                    success: true,
+                    total: 0,
+                    page: 1,
+                    pages: 0,
+                    data: []
+                });
+            }
+            filter.category = category._id;
+        }
         if (req.query.brand) filter.brand = req.query.brand;
         if (req.query.qualityGrade) filter.qualityGrade = req.query.qualityGrade;
         if (req.query.screenType) filter.screenType = req.query.screenType;
@@ -120,8 +149,17 @@ export const getProducts = async (req, res) => {
         // Sorting
         let sortOption = { createdAt: -1 };
         if (req.query.sort === "priceLowHigh") sortOption = { price: 1 };
-        if (req.query.sort === "priceHighLow") sortOption = { price: -1 };
-        if (req.query.sort === "popular") sortOption = { numReviews: -1 };
+        else if (req.query.sort === "priceHighLow") sortOption = { price: -1 };
+        else if (req.query.sort === "popular") sortOption = { numReviews: -1 };
+        else if (req.query.sort) {
+            const sortValue = req.query.sort;
+            const field = sortValue.startsWith("-") ? sortValue.slice(1) : sortValue;
+            const direction = sortValue.startsWith("-") ? -1 : 1;
+            const allowedFields = ["createdAt", "price", "numReviews", "name", "brand"];
+            if (allowedFields.includes(field)) {
+                sortOption = { [field]: direction };
+            }
+        }
 
         const products = await Product.find(filter)
             .populate("category", "name slug")

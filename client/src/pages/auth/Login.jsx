@@ -19,7 +19,7 @@ const Login = () => {
 
   const validate = () => {
     const next = {};
-    if (!form.identifier.trim()) next.identifier = "identifier is required.";
+    if (!form.identifier.trim()) next.identifier = "Email is required.";
     if (!form.password) next.password = "Password is required.";
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -43,7 +43,7 @@ const Login = () => {
         navigate(redirectTo, { replace: true });
       }
     } catch (err) {
-      setFormError(err.response?.data?.message || "Invalid identifier or password.");
+      setFormError(err.response?.data?.message || "Invalid email/username or password.");
     } finally {
       setSubmitting(false);
     }
@@ -63,7 +63,7 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
           <Input
-            label="identifier"
+            label="User name or email"
             type="identifier"
             icon={Mail}
             value={form.identifier}

@@ -4,10 +4,11 @@ import { ChevronRight, Folder } from "lucide-react";
 // category: { _id, name, slug, description, image }
 const CategoryCard = ({ category }) => {
   const { slug, name, description, image } = category;
+  const queryValue = slug || name;
 
   return (
     <Link
-      to={`/products?category=${slug}`}
+      to={`/products?category=${encodeURIComponent(queryValue)}`}
       className="group flex items-center gap-4 rounded-xl border border-border bg-white p-4 transition-shadow hover:shadow-md"
     >
       <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-brand-50">
