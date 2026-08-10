@@ -7,6 +7,7 @@ import Spinner from "../../components/common/Spinner";
 import ErrorMessage from "../../components/common/ErrorMessage";
 import EmptyState from "../../components/common/EmptyState";
 import * as categoryService from "../../services/categoryService";
+import ImageUpload from "../../components/common/ImageUpload";
 
 const EMPTY_FORM = { name: "", description: "", image: "" };
 
@@ -98,7 +99,7 @@ const AdminCategories = () => {
         <Button icon={Plus} onClick={openCreate}>Add Category</Button>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 overflow-x-auto rounded-xl border border-border bg-white">
         {loading ? (
           <Spinner fullPage label="Loading categories" />
         ) : error ? (
@@ -106,31 +107,42 @@ const AdminCategories = () => {
         ) : categories.length === 0 ? (
           <EmptyState title="No categories yet" message="Add your first category." />
         ) : (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {categories.map((c) => (
-              <div key={c._id} className="flex items-center gap-3 rounded-xl border border-border bg-white p-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-brand-50">
-                  {c.image ? (
-                    <img src={c.image} alt={c.name} className="h-full w-full object-cover" />
-                  ) : (
-                    <Folder className="h-5 w-5 text-brand-600" />
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-ink-950">{c.name}</p>
-                  <p className="truncate text-xs text-ink-500">{c.description || "No description"}</p>
-                </div>
-                <div className="flex gap-1">
-                  <button onClick={() => openEdit(c)} className="rounded-lg p-1.5 text-ink-500 hover:bg-muted hover:text-ink-950">
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                  <button onClick={() => handleDelete(c._id)} className="rounded-lg p-1.5 text-ink-500 hover:bg-red-50 hover:text-danger-500">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+          <table className="w-full min-w-[720px] text-sm">
+            <thead>
+              <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wide text-ink-500">
+                <th className="px-4 py-3">Category</th>
+                <th className="px-4 py-3">Description</th>
+                <th className="px-4 py-3">Image</th>
+                <th className="px-4 py-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {categories.map((c) => (
+                <tr key={c._id}>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-ink-950">{c.name}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-ink-700">{c.description || "No description"}</td>
+                  <td className="px-4 py-3 text-ink-700">{c.image ? "Yes" : "No"}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end gap-1">
+                      <button onClick={() => openEdit(c)} className="rounded-lg p-1.5 text-ink-500 hover:bg-muted hover:text-ink-950">
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button onClick={() => handleDelete(c._id)} className="rounded-lg p-1.5 text-ink-500 hover:bg-red-50 hover:text-danger-500">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
 
@@ -150,7 +162,13 @@ const AdminCategories = () => {
             />
           </div>
 
-          <Input label="Image URL" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} />
+          <div>
+          <label className="mb-1.5 block text-sm font-medium text-ink-900">Category Image</label>
+          <ImageUpload
+            value={form.image}
+            onChange={(url) => setForm({ ...form, image: url })}
+          />
+        </div>
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>

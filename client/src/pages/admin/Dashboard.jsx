@@ -78,7 +78,7 @@ const Dashboard = () => {
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-medium text-ink-500">
                     {i + 1}
                   </span>
-                  <Link to={`/products/${p.productId}`} className="text-sm font-medium text-ink-950 hover:text-brand-600">
+                  <Link to="/admin/products" className="text-sm font-medium text-ink-950 hover:text-brand-600">
                     {p.name}
                   </Link>
                 </div>

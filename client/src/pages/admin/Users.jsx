@@ -83,9 +83,12 @@ const AdminUsers = () => {
           <table className="w-full min-w-[680px] text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wide text-ink-500">
-                <th className="px-4 py-3">Name</th>
+                <th className="px-4 py-3">User Name</th>
                 <th className="px-4 py-3">Email</th>
+                <th className="px-4 py-3">Phone</th>
                 <th className="px-4 py-3">Role</th>
+                <th className="px-4 py-3">Verified</th>
+                <th className="px-4 py-3 text-right">Actions</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3"></th>
               </tr>
@@ -93,8 +96,9 @@ const AdminUsers = () => {
             <tbody className="divide-y divide-border">
               {users.map((u) => (
                 <tr key={u._id}>
-                  <td className="px-4 py-3 font-medium text-ink-950">{u.name}</td>
+                  <td className="px-4 py-3 font-medium text-ink-950">{u.username}</td>
                   <td className="px-4 py-3 text-ink-500">{u.email}</td>
+                  <td className="px-4 py-3 text-ink-500">{u.phone || "-"}</td>
                   <td className="px-4 py-3">
                     <select
                       value={u.role}
@@ -108,6 +112,11 @@ const AdminUsers = () => {
                     </select>
                   </td>
                   <td className="px-4 py-3">
+                    <Badge variant={u.isVerified ? "success" : "danger"}>
+                      {u.isVerified ? "Verified" : "Not Verified"}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-3 text-right">
                     <Badge variant={u.isActive ? "success" : "danger"}>
                       {u.isActive ? "Active" : "Blocked"}
                     </Badge>

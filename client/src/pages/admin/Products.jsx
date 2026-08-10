@@ -11,11 +11,12 @@ import { formatPrice } from "../../utils/formatPrice";
 import { QUALITY_GRADES, SCREEN_TYPES } from "../../utils/constants";
 import * as productService from "../../services/productService";
 import * as categoryService from "../../services/categoryService";
+import ImageUpload from "../../components/common/ImageUpload";
 
 const EMPTY_FORM = {
   name: "", description: "", brand: "", compatibleModels: "", qualityGrade: "",
   screenType: "", category: "", sku: "", price: "", discountPrice: "",
-  stock: "", images: "", featured: false,
+  stock: "", imageUrls: [], featured: false,
 };
 
 const AdminProducts = () => {
@@ -67,7 +68,7 @@ const AdminProducts = () => {
       qualityGrade: p.qualityGrade || "", screenType: p.screenType || "",
       category: p.category?._id || "", sku: p.sku || "",
       price: p.price ?? "", discountPrice: p.discountPrice ?? "",
-      stock: p.stock ?? "", images: (p.images || []).join(", "),
+      stock: p.stock ?? "", imageUrls: p.images || [],
       featured: !!p.featured,
     });
     setFormError("");
@@ -88,7 +89,7 @@ const AdminProducts = () => {
       compatibleModels: form.compatibleModels
         ? form.compatibleModels.split(",").map((s) => s.trim()).filter(Boolean)
         : [],
-      images: form.images ? form.images.split(",").map((s) => s.trim()).filter(Boolean) : [],
+      images: form.imageUrls || [],
       price: Number(form.price),
       discountPrice: form.discountPrice ? Number(form.discountPrice) : undefined,
       stock: form.stock !== "" ? Number(form.stock) : undefined,
@@ -146,10 +147,12 @@ const AdminProducts = () => {
               <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wide text-ink-500">
                 <th className="px-4 py-3">Product</th>
                 <th className="px-4 py-3">Category</th>
+                <th className="px-4 py-3">Brand</th>
+                <th className="px-4 py-3">Model</th>
                 <th className="px-4 py-3">Grade</th>
                 <th className="px-4 py-3">Price</th>
                 <th className="px-4 py-3">Stock</th>
-                <th className="px-4 py-3"></th>
+                <th className="px-4 py-3">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -157,15 +160,6 @@ const AdminProducts = () => {
                 <tr key={p._id}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
-                        {p.images?.[0] ? (
-                          <img src={p.images[0]} alt={p.name} className="h-full w-full object-cover" />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center">
-                            <ImageOff className="h-4 w-4 text-ink-300" />
-                          </div>
-                        )}
-                      </div>
                       <div className="min-w-0">
                         <p className="truncate font-medium text-ink-950">{p.name}</p>
                         <p className="font-mono-data text-xs text-ink-500">{p.sku || "—"}</p>
@@ -173,6 +167,8 @@ const AdminProducts = () => {
                     </div>
                   </td>
                   <td className="px-4 py-3 text-ink-700">{p.category?.name || "—"}</td>
+                  <td className="px-4 py-3 text-ink-700">{p.brand || "—"}</td>
+                  <td className="px-4 py-3 text-ink-700">{p.model || "—"}</td>
                   <td className="px-4 py-3">
                     {p.qualityGrade ? <Badge variant="brand">{p.qualityGrade}</Badge> : "—"}
                   </td>
@@ -295,11 +291,15 @@ const AdminProducts = () => {
             <Input label="Opening stock" type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
           )}
 
-          <Input
-            label="Image URLs (comma-separated)"
-            value={form.images}
-            onChange={(e) => setForm({ ...form, images: e.target.value })}
+          <div>
+          <label className="mb-1.5 block text-sm font-medium text-ink-900">Product Images</label>
+          <ImageUpload
+            value={form.imageUrls || []}
+            onChange={(urls) => setForm({ ...form, imageUrls: urls })}
+            multiple
+            maxFiles={6}
           />
+        </div>
 
           <label className="flex items-center gap-2 text-sm text-ink-700">
             <input
