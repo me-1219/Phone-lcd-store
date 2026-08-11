@@ -19,3 +19,9 @@ export const getAllOrders = (filters = {}) =>
 
 export const updateOrderStatus = (id, orderStatus) =>
   api.put(`/orders/${id}/status`, { orderStatus }).then((res) => res.data);
+
+export const verifyPayment = (id) =>
+  api.put(`/orders/${id}/verify-payment`).then((res) => res.data);
+
+export const rejectPayment = (id, reason) =>
+  api.put(`/orders/${id}/reject-payment`, { reason }).then((res) => res.data);

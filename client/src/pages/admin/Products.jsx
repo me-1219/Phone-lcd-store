@@ -202,7 +202,8 @@ const [importError, setImportError] = useState("");
                 <th className="px-4 py-3">Category</th>
                 <th className="px-4 py-3">Brand</th>
                 <th className="px-4 py-3">Model</th>
-                <th className="px-4 py-3">Grade</th>
+                <th className="px-4 py-3">Quality</th>
+                <th className="px-4 py-3"> ScreenType </th>
                 <th className="px-4 py-3">Price</th>
                 <th className="px-4 py-3">Stock</th>
                 <th className="px-4 py-3">Actions</th>
@@ -224,6 +225,9 @@ const [importError, setImportError] = useState("");
                   <td className="px-4 py-3 text-ink-700">{p.compatibleModels?.join(", ") || "—"}</td>
                   <td className="px-4 py-3">
                     {p.qualityGrade ? <Badge variant="brand">{p.qualityGrade}</Badge> : "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    {p.screenType ? <Badge variant="brand">{p.screenType}</Badge> : "—"}
                   </td>
                   <td className="px-4 py-3 font-mono-data text-ink-950">{formatPrice(p.price)}</td>
                   <td className="px-4 py-3">

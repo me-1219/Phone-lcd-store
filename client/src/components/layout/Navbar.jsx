@@ -1,45 +1,81 @@
-import { useState } from "react";
+
+import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, ShoppingCart, Heart, User, Menu, LogOut } from "lucide-react";
+import {
+  Search,
+  ShoppingCart,
+  Heart,
+  User,
+  Menu,
+  LogOut,
+  Phone,
+} from "lucide-react";
+
 import MobileMenu from "./MobileMenu";
-import { CUSTOMER_NAV_LINKS } from "../../utils/constants";
-import { getDisplayName, getInitials } from "../../utils/getDisplayName";
+import {
+  CUSTOMER_NAV_LINKS,
+  BUSINESS_PHONE,
+  BUSINESS_PHONE_DISPLAY,
+} from "../../utils/constants";
+import { getDisplayName } from "../../utils/getDisplayName";
 import { useAuth } from "../../hooks/useAuth";
-import { useContext } from "react";
 import { CartContext } from "../../context/CartContext";
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
   const { isAuthenticated, user, logout } = useAuth();
   const { itemCount } = useContext(CartContext);
   const navigate = useNavigate();
 
   const handleSearch = (e) => {
     e.preventDefault();
+
     if (searchValue.trim()) {
-      navigate(`/products?q=${encodeURIComponent(searchValue.trim())}`);
+      navigate(
+        `/products?q=${encodeURIComponent(searchValue.trim())}`
+      );
     }
   };
 
   return (
     <>
+      {/* Contact bar - desktop only */}
+      <div className="hidden bg-linear-to-r from-ink-950 via-ink-900 to-brand-700 md:block">
+        <div className="mx-auto flex max-w-7xl items-center justify-end px-4 py-2 sm:px-6 lg:px-8">
+          <a
+            href={`tel:${BUSINESS_PHONE}`}
+            className="flex items-center gap-1.5 text-sm font-medium text-ink-300 hover:text-white"
+          >
+            <Phone className="h-3.5 w-3.5" />
+            {BUSINESS_PHONE_DISPLAY}
+          </a>
+        </div>
+      </div>
+
       <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
-          {/* Logo — signature element: a small angled "glass" duo-tone mark,
-              echoing a screen catching light, rather than a literal phone icon. */}
-          <Link to="/" className="flex shrink-0 items-center gap-2">
+          {/* Logo */}
+          <Link
+            to="/"
+            className="flex shrink-0 items-center gap-2"
+          >
             <span className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-ink-950">
               <span className="absolute -left-2 top-0 h-full w-6 -skew-x-12 bg-linear-to-b from-brand-300 to-brand-600 opacity-90" />
-              <span className="relative font-display text-sm font-bold text-white">ML</span>
+
+              <span className="relative font-display text-sm font-bold text-white">
+                ML
+              </span>
             </span>
+
             <span className="font-display text-lg font-semibold tracking-tight text-ink-950">
               Misgie <span className="text-brand-600">LCD</span>
             </span>
           </Link>
 
-          {/* Desktop nav */}
+          {/* Desktop navigation */}
           <nav className="hidden items-center gap-1 md:flex">
             {CUSTOMER_NAV_LINKS.map((link) => (
               <Link
@@ -52,10 +88,14 @@ const Navbar = () => {
             ))}
           </nav>
 
-          {/* Search — desktop only, mobile gets its own bar below header */}
-          <form onSubmit={handleSearch} className="hidden flex-1 max-w-md md:block">
+          {/* Desktop search */}
+          <form
+            onSubmit={handleSearch}
+            className="hidden max-w-md flex-1 md:block"
+          >
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-300" />
+
               <input
                 type="text"
                 value={searchValue}
@@ -67,6 +107,16 @@ const Navbar = () => {
           </form>
 
           <div className="ml-auto flex items-center gap-1">
+            {/* Mobile click-to-call */}
+            <a
+              href={`tel:${BUSINESS_PHONE}`}
+              aria-label="Call us"
+              className="flex rounded-lg p-2.5 text-ink-700 hover:bg-muted hover:text-ink-950 md:hidden"
+            >
+              <Phone className="h-5 w-5" />
+            </a>
+
+            {/* Wishlist */}
             <Link
               to="/wishlist"
               aria-label="Wishlist"
@@ -75,12 +125,14 @@ const Navbar = () => {
               <Heart className="h-5 w-5" />
             </Link>
 
+            {/* Cart */}
             <Link
               to="/cart"
               aria-label="Cart"
               className="relative rounded-lg p-2.5 text-ink-700 hover:bg-muted hover:text-ink-950"
             >
               <ShoppingCart className="h-5 w-5" />
+
               {itemCount > 0 && (
                 <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-400 px-1 text-[10px] font-semibold text-ink-950">
                   {itemCount}
@@ -88,10 +140,14 @@ const Navbar = () => {
               )}
             </Link>
 
+            {/* User menu */}
             {isAuthenticated ? (
               <div className="relative hidden md:block">
                 <button
-                  onClick={() => setUserMenuOpen((v) => !v)}
+                  type="button"
+                  onClick={() =>
+                    setUserMenuOpen((v) => !v)
+                  }
                   className="flex items-center gap-2 rounded-lg p-2.5 text-ink-700 hover:bg-muted hover:text-ink-950"
                 >
                   <User className="h-5 w-5" />
@@ -100,27 +156,39 @@ const Navbar = () => {
                 {userMenuOpen && (
                   <div
                     className="absolute right-0 mt-1 w-48 rounded-lg border border-border bg-white py-1 shadow-lg"
-                    onMouseLeave={() => setUserMenuOpen(false)}
+                    onMouseLeave={() =>
+                      setUserMenuOpen(false)
+                    }
                   >
                     <p className="truncate px-3 py-2 text-xs text-ink-500">
-                      Signed in as <span className="font-medium text-ink-900">{getDisplayName(user)}</span>
+                      Signed in as{" "}
+                      <span className="font-medium text-ink-900">
+                        {getDisplayName(user)}
+                      </span>
                     </p>
+
                     <div className="my-1 border-t border-border" />
+
                     <Link
                       to="/orders"
                       className="block px-3 py-2 text-sm text-ink-900 hover:bg-muted"
-                      onClick={() => setUserMenuOpen(false)}
+                      onClick={() =>
+                        setUserMenuOpen(false)
+                      }
                     >
                       My Orders
                     </Link>
+
                     <button
+                      type="button"
                       onClick={() => {
                         logout();
                         setUserMenuOpen(false);
                       }}
                       className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-danger-500 hover:bg-red-50"
                     >
-                      <LogOut className="h-4 w-4" /> Logout
+                      <LogOut className="h-4 w-4" />
+                      Logout
                     </button>
                   </div>
                 )}
@@ -130,11 +198,14 @@ const Navbar = () => {
                 to="/login"
                 className="hidden items-center gap-1.5 rounded-lg bg-brand-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-brand-700 md:flex"
               >
-                <User className="h-4 w-4" /> Login
+                <User className="h-4 w-4" />
+                Login
               </Link>
             )}
 
+            {/* Mobile menu button */}
             <button
+              type="button"
               onClick={() => setMobileOpen(true)}
               aria-label="Open menu"
               className="rounded-lg p-2.5 text-ink-700 hover:bg-muted md:hidden"
@@ -145,9 +216,13 @@ const Navbar = () => {
         </div>
 
         {/* Mobile search bar */}
-        <form onSubmit={handleSearch} className="border-t border-border px-4 py-2.5 md:hidden">
+        <form
+          onSubmit={handleSearch}
+          className="border-t border-border px-4 py-2.5 md:hidden"
+        >
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-300" />
+
             <input
               type="text"
               value={searchValue}
@@ -159,9 +234,13 @@ const Navbar = () => {
         </form>
       </header>
 
-      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
+      <MobileMenu
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+      />
     </>
   );
 };
 
 export default Navbar;
+

@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { DollarSign, Clock, AlertTriangle, Users, Package, TrendingUp } from "lucide-react";
+import {
+  DollarSign, Clock, AlertTriangle, Users, Package, TrendingUp,
+  Wallet, Receipt, Tag,
+} from "lucide-react";
 import Spinner from "../../components/common/Spinner";
 import ErrorMessage from "../../components/common/ErrorMessage";
 import { formatPrice } from "../../utils/formatPrice";
@@ -11,6 +14,7 @@ const StatCard = ({ icon: Icon, label, value, tone = "brand" }) => {
     brand: "bg-brand-50 text-brand-600",
     amber: "bg-amber-100 text-amber-600",
     danger: "bg-red-50 text-danger-500",
+    success: "bg-emerald-50 text-success-500",
   };
 
   return (
@@ -23,6 +27,8 @@ const StatCard = ({ icon: Icon, label, value, tone = "brand" }) => {
     </div>
   );
 };
+
+const PAYMENT_METHOD_LABEL = { cod: "Cash on Delivery", telebirr: "Telebirr", card: "Card" };
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
@@ -49,19 +55,79 @@ const Dashboard = () => {
   if (loading) return <Spinner fullPage label="Loading dashboard" />;
   if (error) return <ErrorMessage message={error} onRetry={load} />;
 
+  const normalizedData = {
+    totalSales: 0,
+    pendingPayments: 0,
+    averageOrderValue: 0,
+    totalDiscountGiven: 0,
+    pendingOrders: 0,
+    lowStockCount: 0,
+    totalUsers: 0,
+    totalProducts: 0,
+    revenueByPaymentMethod: [],
+    topSellingProducts: [],
+    ...(data || {}),
+  };
+
+  const paymentTotal = normalizedData.revenueByPaymentMethod.reduce((sum, r) => sum + r.total, 0);
+
   return (
     <div>
       <h1 className="font-display text-2xl font-semibold text-ink-950">Dashboard</h1>
       <p className="mt-1 text-sm text-ink-500">A quick look at how the store is doing.</p>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <StatCard icon={DollarSign} label="Total Sales" value={formatPrice(data.totalSales)} />
-        <StatCard icon={Clock} label="Pending Orders" value={data.pendingOrders} tone="amber" />
-        <StatCard icon={AlertTriangle} label="Low Stock Items" value={data.lowStockCount} tone="danger" />
-        <StatCard icon={Users} label="Customers" value={data.totalUsers} />
-        <StatCard icon={Package} label="Active Products" value={data.totalProducts} />
+      {/* Finance */}
+      <h2 className="mt-6 font-display text-sm font-semibold uppercase tracking-wide text-ink-500">
+        Finance
+      </h2>
+      <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard icon={DollarSign} label="Total Collected" value={formatPrice(normalizedData.totalSales)} tone="success" />
+        <StatCard icon={Wallet} label="Pending Payments" value={formatPrice(normalizedData.pendingPayments)} tone="amber" />
+        <StatCard icon={Receipt} label="Avg. Order Value" value={formatPrice(normalizedData.averageOrderValue)} />
+        <StatCard icon={Tag} label="Discounts Given" value={formatPrice(normalizedData.totalDiscountGiven)} />
       </div>
 
+      {/* Store activity */}
+      <h2 className="mt-6 font-display text-sm font-semibold uppercase tracking-wide text-ink-500">
+        Store Activity
+      </h2>
+      <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard icon={Clock} label="Pending Orders" value={normalizedData.pendingOrders} tone="amber" />
+        <StatCard icon={AlertTriangle} label="Low Stock Items" value={normalizedData.lowStockCount} tone="danger" />
+        <StatCard icon={Users} label="Customers" value={normalizedData.totalUsers} />
+        <StatCard icon={Package} label="Active Products" value={normalizedData.totalProducts} />
+      </div>
+
+      {/* Revenue by payment method */}
+      {normalizedData.revenueByPaymentMethod.length > 0 && (
+        <div className="mt-6 rounded-xl border border-border bg-white p-5">
+          <h2 className="font-display text-base font-semibold text-ink-950">Revenue by Payment Method</h2>
+
+          <div className="mt-4 space-y-3">
+            {normalizedData.revenueByPaymentMethod.map((r) => {
+              const pct = paymentTotal > 0 ? Math.round((r.total / paymentTotal) * 100) : 0;
+              return (
+                <div key={r.method}>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-ink-900">{PAYMENT_METHOD_LABEL[r.method] || r.method}</span>
+                    <span className="font-mono-data text-ink-950">
+                      {formatPrice(r.total)} <span className="text-ink-500">({r.count} orders)</span>
+                    </span>
+                  </div>
+                  <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-brand-600"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Top selling products */}
       <div className="mt-6 rounded-xl border border-border bg-white p-5">
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-brand-600" />

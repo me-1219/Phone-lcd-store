@@ -12,14 +12,19 @@ import { notifyUser } from "../utils/notificationService.js";
 // =========================
 export const createOrder = async (req, res) => {
     try {
-        const { shippingAddress, paymentMethod } = req.body;
+        const { shippingAddress, paymentMethod, couponCode, telebirrTransactionNumber } = req.body;
 
         const cart = await Cart.findOne({ user: req.user._id }).populate("items.product");
 
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({ success: false, message: "Cart is empty." });
         }
-
+        if (paymentMethod === "telebirr" && !telebirrTransactionNumber?.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "Telebirr transaction number is required for Telebirr payments.",
+            });
+        }
         // Validate stock and build order items
         const orderItems = [];
         let totalAmount = 0;
@@ -75,6 +80,12 @@ export const createOrder = async (req, res) => {
             discountAmount,
             shippingAddress,
             paymentMethod: paymentMethod || "cod",
+            ...(paymentMethod === "telebirr" && {
+                paymentDetails: {
+                    transactionNumber: telebirrTransactionNumber.trim(),
+                    submittedAt: new Date(),
+                }
+            })
         });
 
         // Deduct stock for each product — centralized + audited via adjustStock()
@@ -287,6 +298,76 @@ export const updateOrderStatus = async (req, res) => {
         });
 
         res.status(200).json({ success: true, message: "Order status updated.", data: order });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// =========================
+// ADMIN — Verify a Telebirr payment against the submitted transaction number
+// PUT /api/orders/:id/verify-payment
+// =========================
+export const verifyPayment = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found." });
+        }
+
+        if (order.paymentMethod !== "telebirr") {
+            return res.status(400).json({
+                success: false,
+                message: "This order isn't a Telebirr payment.",
+            });
+        }
+
+        if (order.paymentStatus === "paid") {
+            return res.status(400).json({ success: false, message: "Already marked as paid." });
+        }
+
+        order.paymentStatus = "paid";
+        order.paymentDetails.verifiedBy = req.user._id;
+        order.paymentDetails.verifiedAt = new Date();
+        await order.save();
+
+        await notifyUser({
+            userId: order.user,
+            type: "order_status",
+            message: `Your payment for order #${order._id.toString().slice(-6)} has been confirmed.`,
+            relatedOrder: order._id,
+        });
+
+        res.status(200).json({ success: true, message: "Payment verified.", data: order });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// =========================
+// ADMIN — Reject a submitted transaction number (couldn't be matched)
+// PUT /api/orders/:id/reject-payment
+// body: { reason }
+// =========================
+export const rejectPayment = async (req, res) => {
+    try {
+        const { reason } = req.body;
+        const order = await Order.findById(req.params.id);
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found." });
+        }
+
+        await notifyUser({
+            userId: order.user,
+            type: "order_status",
+            message: `We couldn't verify the payment for order #${order._id.toString().slice(-6)}. ${
+                reason || "Please double check your transaction number or contact support."
+            }`,
+            relatedOrder: order._id,
+        });
+
+        res.status(200).json({ success: true, message: "Customer notified to resubmit payment info." });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

@@ -16,7 +16,9 @@ export const ADMIN_NAV_LINKS = [
   { label: "Coupons", to: "/admin/coupons" },
   { label: "Users", to: "/admin/users" },
 ];
-
+export const BUSINESS_PHONE = "+251962725252"; // swap for your real number
+export const BUSINESS_PHONE_DISPLAY = "0962725252";
+export const TELEBIRR_MERCHANT_NUMBER = "0973921904";
 // Matches the enum values on the Product model — kept here so filter UI
 // and any select inputs pull from one source instead of hardcoded strings.
 export const QUALITY_GRADES = ["Original", "OEM", "Copy", "Refurbished"];

@@ -183,12 +183,12 @@ const AdminLayout = () => {
 
         <div className="mt-2 flex flex-col gap-1 px-3">
        
-          <Link
+         {/*  <Link
             to="/"
             className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-300 hover:bg-white/5 hover:text-white"
           >
             <Store className="h-4 w-4" /> View Store
-          </Link>
+          </Link> */}
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-300 hover:bg-white/5"

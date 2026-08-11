@@ -40,6 +40,12 @@ const orderSchema = new mongoose.Schema(
             enum: ["telebirr", "cod", "card"],
             default: "cod",
         },
+        paymentDetails: {
+            transactionNumber: { type: String, trim: true },
+            submittedAt: { type: Date },
+            verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+            verifiedAt: { type: Date },
+        },
         couponCode: { 
             type: String
          },

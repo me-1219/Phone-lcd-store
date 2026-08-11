@@ -25,8 +25,10 @@ export const updateProduct = (id, data) =>
 export const deleteProduct = (id) =>
   api.delete(`/products/${id}`).then((res) => res.data);
 
-export const bulkCreateProducts = (products) =>
-  api.post("/products/bulk", products).then((res) => res.data);
+export const bulkCreateProducts = (products) => {
+  const payload = Array.isArray(products) ? { products } : products;
+  return api.post("/products/bulk", payload).then((res) => res.data);
+};
 
 export const bulkCreateProductsFromCsv = (file) => {
   const formData = new FormData();

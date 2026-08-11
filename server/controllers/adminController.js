@@ -9,17 +9,26 @@ import User from "../models/User.js";
 export const getDashboardSummary = async (req, res) => {
     try {
         const [
-            totalSalesResult,
+            paidSalesSummaryResult,
             pendingOrdersCount,
             lowStockCount,
             totalUsers,
             totalProducts,
+            pendingRevenueResult,
+            revenueByPaymentMethodResult,
             topSellingProducts,
         ] = await Promise.all([
-            // Total revenue from paid orders
+            // Paid order summary: total sales, avg. order value, discounts
             Order.aggregate([
                 { $match: { paymentStatus: "paid" } },
-                { $group: { _id: null, total: { $sum: "$totalAmount" } } },
+                {
+                    $group: {
+                        _id: null,
+                        total: { $sum: "$totalAmount" },
+                        averageOrderValue: { $avg: "$totalAmount" },
+                        totalDiscountGiven: { $sum: "$discountAmount" },
+                    },
+                },
             ]),
 
             Order.countDocuments({ orderStatus: "pending" }),
@@ -32,6 +41,30 @@ export const getDashboardSummary = async (req, res) => {
             User.countDocuments({ role: "user" }),
 
             Product.countDocuments({ isActive: true }),
+
+            Order.aggregate([
+                { $match: { paymentStatus: "unpaid" } },
+                { $group: { _id: null, total: { $sum: "$totalAmount" } } },
+            ]),
+
+            Order.aggregate([
+                { $match: { paymentStatus: "paid" } },
+                {
+                    $group: {
+                        _id: "$paymentMethod",
+                        total: { $sum: "$totalAmount" },
+                        count: { $sum: 1 },
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        method: "$_id",
+                        total: 1,
+                        count: 1,
+                    },
+                },
+            ]),
 
             // Top-selling products — unwind order items, group by product, sum quantity
             Order.aggregate([
@@ -69,11 +102,15 @@ export const getDashboardSummary = async (req, res) => {
         res.status(200).json({
             success: true,
             data: {
-                totalSales: totalSalesResult[0]?.total || 0,
+                totalSales: paidSalesSummaryResult[0]?.total || 0,
+                pendingPayments: pendingRevenueResult[0]?.total || 0,
                 pendingOrders: pendingOrdersCount,
                 lowStockCount,
                 totalUsers,
                 totalProducts,
+                averageOrderValue: paidSalesSummaryResult[0]?.averageOrderValue || 0,
+                totalDiscountGiven: paidSalesSummaryResult[0]?.totalDiscountGiven || 0,
+                revenueByPaymentMethod: revenueByPaymentMethodResult || [],
                 topSellingProducts,
             },
         });
