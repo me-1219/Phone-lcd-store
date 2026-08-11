@@ -8,6 +8,7 @@ import {
     updateOrderStatus,
     verifyPayment,     // ← is this here?
     rejectPayment,
+    downloadInvoice,
 } from "../controllers/orderController.js";
 import { protect, authorize } from "../middleware/authMiddleware.js";
 
@@ -27,5 +28,5 @@ router.get("/", authorize("admin"), getAllOrders);
 router.put("/:id/status", authorize("admin"), updateOrderStatus);
 router.put("/:id/verify-payment", authorize("admin"), verifyPayment);   // ← these two
 router.put("/:id/reject-payment", authorize("admin"), rejectPayment);
-
+router.get("/:id/invoice", downloadInvoice);
 export default router;

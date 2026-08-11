@@ -4,7 +4,7 @@ import Product from "../models/Product.js";
 import { adjustStock } from "../utils/inventoryService.js";
 import { validateAndCalculateDiscount } from "../utils/couponService.js";
 import { notifyUser } from "../utils/notificationService.js";
-
+import PDFDocument from "pdfkit"
 // =========================
 // Create order FROM the user's cart
 // POST /api/orders
@@ -368,6 +368,111 @@ export const rejectPayment = async (req, res) => {
         });
 
         res.status(200).json({ success: true, message: "Customer notified to resubmit payment info." });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// =========================
+// Download order invoice as PDF
+// GET /api/orders/:id/invoice
+// =========================
+
+export const downloadInvoice = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id)
+            .populate("items.product", "name sku")
+            .populate("user", "name email phone");
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found." });
+        }
+
+        if (req.user.role !== "admin" && order.user._id.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ success: false, message: "Access denied." });
+        }
+
+        const doc = new PDFDocument({ margin: 50 });
+        const filename = `invoice-${order._id.toString().slice(-8).toUpperCase()}.pdf`;
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        doc.pipe(res);
+
+        // Header
+        doc.fontSize(20).text("Misgie LCD", { align: "left" });
+        doc.fontSize(10).fillColor("#666").text("Phone Accessories & Repair Parts", { align: "left" });
+        doc.moveDown(1.5);
+
+        doc.fontSize(16).fillColor("#000").text("INVOICE", { align: "right" });
+        doc.fontSize(10).fillColor("#666").text(`#${order._id.toString().slice(-8).toUpperCase()}`, { align: "right" });
+        doc.text(
+            `Date: ${new Date(order.createdAt).toLocaleDateString("en-US", {
+                year: "numeric", month: "long", day: "numeric",
+            })}`,
+            { align: "right" }
+        );
+        doc.moveDown(1.5);
+
+        // Customer + shipping
+        doc.fontSize(11).fillColor("#000").text("Bill To:");
+        doc.fontSize(10).fillColor("#333");
+        doc.text(order.user?.name || order.user?.username || "Customer");
+        doc.text(order.user?.email || "");
+        if (order.user?.phone) doc.text(order.user.phone);
+        doc.moveDown(0.5);
+        if (order.shippingAddress) {
+            doc.text(
+                `${order.shippingAddress.street || ""}, ${order.shippingAddress.city || ""}, ${order.shippingAddress.region || ""}, ${order.shippingAddress.country || ""}`
+            );
+        }
+        doc.moveDown(1.5);
+
+        // Items table header
+        const tableTop = doc.y;
+        doc.fontSize(10).fillColor("#000");
+        doc.text("Item", 50, tableTop, { width: 220 });
+        doc.text("Qty", 280, tableTop, { width: 50, align: "right" });
+        doc.text("Price", 340, tableTop, { width: 80, align: "right" });
+        doc.text("Total", 430, tableTop, { width: 80, align: "right" });
+        doc.moveTo(50, tableTop + 15).lineTo(510, tableTop + 15).strokeColor("#ccc").stroke();
+
+        let y = tableTop + 25;
+        doc.fontSize(9).fillColor("#333");
+        order.items.forEach((item) => {
+            const lineTotal = item.priceAtOrder * item.quantity;
+            doc.text(item.product?.name || "Product", 50, y, { width: 220 });
+            doc.text(String(item.quantity), 280, y, { width: 50, align: "right" });
+            doc.text(item.priceAtOrder.toLocaleString(), 340, y, { width: 80, align: "right" });
+            doc.text(lineTotal.toLocaleString(), 430, y, { width: 80, align: "right" });
+            y += 20;
+        });
+
+        doc.moveTo(50, y).lineTo(510, y).strokeColor("#ccc").stroke();
+        y += 10;
+
+        if (order.discountAmount > 0) {
+            doc.fontSize(9).fillColor("#666");
+            doc.text(`Discount ${order.couponCode ? `(${order.couponCode})` : ""}:`, 340, y, { width: 90 });
+            doc.text(`-${order.discountAmount.toLocaleString()}`, 430, y, { width: 80, align: "right" });
+            y += 18;
+        }
+
+        doc.fontSize(11).fillColor("#000").font("Helvetica-Bold");
+        doc.text("Total (ETB):", 340, y, { width: 90 });
+        doc.text(order.totalAmount.toLocaleString(), 430, y, { width: 80, align: "right" });
+        doc.font("Helvetica");
+        y += 30;
+
+        doc.fontSize(9).fillColor("#666");
+        doc.text(`Payment method: ${order.paymentMethod.toUpperCase()}`, 50, y);
+        doc.text(`Payment status: ${order.paymentStatus.toUpperCase()}`, 50, y + 14);
+        doc.text(`Order status: ${order.orderStatus.toUpperCase()}`, 50, y + 28);
+
+        doc.moveDown(3);
+        doc.fontSize(8).fillColor("#999").text("Thank you for shopping with Misgie LCD.", { align: "center" });
+
+        doc.end();
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

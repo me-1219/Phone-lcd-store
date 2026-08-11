@@ -25,3 +25,15 @@ export const verifyPayment = (id) =>
 
 export const rejectPayment = (id, reason) =>
   api.put(`/orders/${id}/reject-payment`, { reason }).then((res) => res.data);
+
+export const downloadInvoice = async (id) => {
+  const res = await api.get(`/orders/${id}/invoice`, { responseType: "blob" });
+  const url = window.URL.createObjectURL(new Blob([res.data]));
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `invoice-${id.slice(-8).toUpperCase()}.pdf`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};

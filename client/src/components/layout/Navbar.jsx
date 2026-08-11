@@ -20,7 +20,7 @@ import {
 import { getDisplayName } from "../../utils/getDisplayName";
 import { useAuth } from "../../hooks/useAuth";
 import { CartContext } from "../../context/CartContext";
-
+import NotificationBell from "./NotificationBell";
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -139,6 +139,7 @@ const Navbar = () => {
                 </span>
               )}
             </Link>
+        <NotificationBell />
 
             {/* User menu */}
             {isAuthenticated ? (

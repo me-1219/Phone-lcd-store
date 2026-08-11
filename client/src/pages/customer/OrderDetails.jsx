@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useLocation, Link } from "react-router-dom";
-import { CheckCircle2, ImageOff } from "lucide-react";
+import { CheckCircle2, ImageOff, Download } from "lucide-react";
 import Badge from "../../components/common/Badge";
 import Button from "../../components/common/Button";
 import Spinner from "../../components/common/Spinner";
@@ -26,6 +26,7 @@ const OrderDetails = () => {
   const [error, setError] = useState(null);
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState("");
+  const [downloadingInvoice, setDownloadingInvoice] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -59,6 +60,17 @@ const OrderDetails = () => {
     }
   };
 
+  const handleDownloadInvoice = async () => {
+    setDownloadingInvoice(true);
+    try {
+      await orderService.downloadInvoice(order._id);
+    } catch (err) {
+      alert("Could not download invoice.");
+    } finally {
+      setDownloadingInvoice(false);
+    }
+  };
+
   if (loading) return <Spinner fullPage label="Loading order" />;
   if (error || !order) {
     return <div className="mx-auto max-w-2xl px-4 py-16"><ErrorMessage message={error} onRetry={load} /></div>;
@@ -66,6 +78,7 @@ const OrderDetails = () => {
 
   const canCancel = ["pending", "processing"].includes(order.orderStatus);
 
+  
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
       {justPlaced && (
@@ -161,6 +174,11 @@ const OrderDetails = () => {
         <Link to="/orders">
           <Button variant="outline">Back to Orders</Button>
         </Link>
+
+        <Button variant="outline" icon={Download} loading={downloadingInvoice} onClick={handleDownloadInvoice}>
+          Download Invoice
+        </Button>
+
         {canCancel && (
           <Button variant="danger" loading={cancelling} onClick={handleCancel}>
             Cancel Order

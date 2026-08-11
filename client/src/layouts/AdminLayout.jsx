@@ -20,6 +20,8 @@ import { ADMIN_NAV_LINKS } from "../utils/constants";
 import { useAuth } from "../hooks/useAuth";
 import { getDisplayName, getInitials } from "../utils/getDisplayName";
 import Badge from "../components/common/Badge";
+import NotificationBell from "../components/layout/NotificationBell";
+
 
 const ICONS = {
   "/admin": LayoutDashboard,
@@ -244,7 +246,8 @@ const AdminLayout = () => {
             Admin Dashboard
           </h1>
 
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            <NotificationBell dark notificationsPath="/admin/notifications" />
             <ProfileMenu user={user} onLogout={handleLogout} />
           </div>
         </header>

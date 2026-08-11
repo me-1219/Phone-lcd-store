@@ -14,6 +14,7 @@ import Wishlist from "../pages/customer/Wishlist";
 import Checkout from "../pages/customer/Checkout";
 import Orders from "../pages/customer/Orders";
 import OrderDetails from "../pages/customer/OrderDetails";
+import Notifications from "../pages/customer/Notifications";
 
 // Auth pages
 import Login from "../pages/auth/Login";
@@ -55,6 +56,7 @@ const AppRoutes = () => {
           <Route path="checkout" element={<Checkout />} />
           <Route path="orders" element={<Orders />} />
           <Route path="orders/:id" element={<OrderDetails />} />
+          <Route path="notifications" element={<Notifications />} />
         </Route>
       </Route>
 
@@ -71,6 +73,7 @@ const AppRoutes = () => {
           <Route path="reviews" element={<AdminReviews />} />
           <Route path="coupons" element={<AdminCoupons />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="notifications" element={<Notifications />} />
           <Route path="profile" element={<AdminProfile />} />
         </Route>
       </Route>
