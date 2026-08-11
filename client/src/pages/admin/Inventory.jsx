@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { AlertTriangle, ClipboardList, PackagePlus } from "lucide-react";
 import Button from "../../components/common/Button";
 import Input from "../../components/common/Input";
+import ProductSearchSelect from "../../components/common/ProductSearchSelect";
 import Modal from "../../components/common/Modal";
 import Badge from "../../components/common/Badge";
 import Spinner from "../../components/common/Spinner";
@@ -24,7 +25,7 @@ const AdminInventory = () => {
   const [error, setError] = useState(null);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [form, setForm] = useState({ productId: "", quantityChange: "", type: "purchase_receipt", reason: "" });
+  const [form, setForm] = useState({ product: null, quantityChange: "", type: "purchase_receipt", reason: "" });
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -57,8 +58,8 @@ const AdminInventory = () => {
     loadMovements();
   }, []);
 
-  const openAdjust = (productId = "") => {
-    setForm({ productId, quantityChange: "", type: "purchase_receipt", reason: "" });
+  const openAdjust = (product = null) => {
+    setForm({ product, quantityChange: "", type: "purchase_receipt", reason: "" });
     setFormError("");
     setModalOpen(true);
   };
@@ -67,16 +68,18 @@ const AdminInventory = () => {
     e.preventDefault();
     setFormError("");
 
-    if (!form.productId || !form.quantityChange || !form.reason.trim()) {
-      setFormError("Product ID, quantity change, and reason are all required.");
+    if (!form.product || !form.quantityChange || !form.reason.trim()) {
+      setFormError("Select a product, enter a quantity change, and a reason.");
       return;
     }
 
     setSaving(true);
     try {
       await inventoryService.adjustStock({
-        ...form,
+        productId: form.product._id,
         quantityChange: Number(form.quantityChange),
+        type: form.type,
+        reason: form.reason,
       });
       setModalOpen(false);
       loadLowStock();
@@ -122,7 +125,7 @@ const AdminInventory = () => {
                     <span className="font-mono-data text-sm text-danger-500">
                       {p.stock} / {p.reorderPoint} reorder pt.
                     </span>
-                    <Button size="sm" variant="outline" onClick={() => openAdjust(p._id)}>
+                    <Button size="sm" variant="outline" onClick={() => openAdjust(p)}>
                       Restock
                     </Button>
                   </div>
@@ -184,12 +187,13 @@ const AdminInventory = () => {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {formError && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-danger-500">{formError}</p>}
 
-          <Input
-            label="Product ID"
-            value={form.productId}
-            onChange={(e) => setForm({ ...form, productId: e.target.value })}
-            placeholder="Paste product _id"
-          />
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-ink-900">Product</label>
+            <ProductSearchSelect
+              value={form.product}
+              onChange={(product) => setForm({ ...form, product })}
+            />
+          </div>
 
           <div>
             <label className="mb-1.5 block text-sm font-medium text-ink-900">Type</label>
