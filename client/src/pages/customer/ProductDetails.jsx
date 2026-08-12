@@ -6,6 +6,7 @@ import Badge from "../../components/common/Badge";
 import Button from "../../components/common/Button";
 import Spinner from "../../components/common/Spinner";
 import ErrorMessage from "../../components/common/ErrorMessage";
+import SEO from "../../components/common/SEO";
 import { formatPrice } from "../../utils/formatPrice";
 import * as productService from "../../services/productService";
 import * as reviewService from "../../services/reviewService";
@@ -145,8 +146,20 @@ const ProductDetails = () => {
   };
  
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <nav className="mb-6 text-sm text-ink-500">
+    <>
+      <SEO
+        title={product.name}
+        description={
+          product.description ||
+          `${product.name} — ${product.qualityGrade || "Premium"} quality, ${formatPrice(product.discountPrice || product.price)}. In stock at Misgie LCD.`
+        }
+        image={product.images?.[0]}
+        path={`/products/${product._id}`}
+        type="product"
+      />
+
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <nav className="mb-6 text-sm text-ink-500">
         <Link to="/products" className="hover:text-brand-600">Products</Link>
         {category?.name && (
           <>
@@ -258,9 +271,9 @@ const ProductDetails = () => {
             />
           </div>
         </div>
-      </div>
+        </div>
 
-      {/* Reviews */}
+        {/* Reviews */}
       <section className="mt-14 border-t border-border pt-10">
         <h2 className="font-display text-xl font-semibold text-ink-950">
           Reviews ({reviews.length})
@@ -335,7 +348,8 @@ const ProductDetails = () => {
           )}
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 };
 

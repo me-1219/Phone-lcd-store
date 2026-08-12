@@ -86,6 +86,13 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 5, // alert when stock falls at or below this
     },
+    slug: {
+      type: String,
+      unique: true,
+      sparse: true,
+      lowercase: true,
+      trim: true,
+    },
   },
   {
     timestamps: true,

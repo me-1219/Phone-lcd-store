@@ -6,6 +6,13 @@ import mongoose from "mongoose";
 import { adjustStock } from "../utils/inventoryService.js";
 import { parse } from "csv-parse/sync";
 
+const generateSlug = (name = "") =>
+    String(name)
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+
 // =========================
 // ADMIN — Bulk product import helpers
 // Shared by both bulk endpoints (JSON array and CSV) so validation logic
@@ -52,6 +59,12 @@ export const processBulkImport = async (items, adminUserId) => {
             }
 
             const openingStock = Number(row.stock) || 0;
+            let baseSlug = generateSlug(row.name);
+            let slug = baseSlug;
+            let suffix = 1;
+            while (await Product.findOne({ slug })) {
+                slug = `${baseSlug}-${suffix++}`;
+            }
 
             const product = await Product.create({
                 name: row.name,
@@ -71,6 +84,7 @@ export const processBulkImport = async (items, adminUserId) => {
                 stock: 0, // set via adjustStock below so it's logged, not silent
                 images: row.images || [],
                 featured: !!row.featured,
+                slug,
             });
 
             if (openingStock > 0) {
@@ -167,6 +181,14 @@ export const createProduct = async (req, res) => {
             }
         }
 
+        let baseSlug = generateSlug(name);
+        let slug = baseSlug;
+        let suffix = 1;
+
+        while (await Product.findOne({ slug })) {
+            slug = `${baseSlug}-${suffix++}`;
+        }
+
         const product = await Product.create({
             name,
             description,
@@ -180,7 +202,8 @@ export const createProduct = async (req, res) => {
             discountPrice,
             stock,
             images,
-            featured
+            featured,
+            slug
         });
 
         const newProduct = await Product.findById(product._id)
@@ -337,6 +360,30 @@ export const getProductById = async (req, res) => {
 
     }
 
+};
+
+export const getProductBySlug = async (req, res) => {
+    try {
+        const product = await Product.findOne({ slug: req.params.slug })
+            .populate("category", "name slug");
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found."
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: product
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
 };
 
 // =========================

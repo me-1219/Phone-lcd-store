@@ -5,6 +5,7 @@ import {
     createProduct,
     getProducts,
     getProductById,
+    getProductBySlug,
     updateProduct,
     deleteProduct,
     getProductsByCategory,
@@ -21,6 +22,7 @@ router.post("/bulk-csv", protect, authorize("admin"), csvUpload.single("file"), 
 router.get("/", getProducts);
 router.get("/search", searchProducts);
 router.get("/category/:categoryId", getProductsByCategory);
+router.get("/slug/:slug", getProductBySlug);
 router.get("/:id", getProductById);
 router.put("/:id", updateProduct);
 router.delete("/:id", deleteProduct);

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { ShieldCheck, Truck, Wrench, ArrowRight } from "lucide-react";
 import Button from "../../components/common/Button";
@@ -9,6 +10,22 @@ import * as productService from "../../services/productService";
 import * as categoryService from "../../services/categoryService";
 import * as wishlistService from "../../services/wishlistService";
 import { useAuth } from "../../hooks/useAuth";
+
+const BUSINESS_PHONE = "+251-911-234-567";
+
+const localBusinessSchema = {
+  "@context": "https://schema.org",
+  "@type": "ElectronicsStore",
+  name: "Misgie LCD",
+  image: "https://msglcd.com/logo.png",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Addis Ababa",
+    addressCountry: "ET",
+  },
+  telephone: BUSINESS_PHONE,
+  priceRange: "$$",
+};
 
 const VALUE_PROPS = [
   {
@@ -77,9 +94,16 @@ const Home = () => {
   }, [isAuthenticated]);
 
   return (
-    <div>
-      {/* Hero — signature element: a skewed cyan "glass" panel behind the
-          headline, echoing the reflective sheen of a phone screen catching light. */}
+    <>
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(localBusinessSchema)}
+        </script>
+      </Helmet>
+
+      <div>
+        {/* Hero — signature element: a skewed cyan "glass" panel behind the
+            headline, echoing the reflective sheen of a phone screen catching light. */}
       <section className="relative overflow-hidden bg-ink-950">
         <div className="pointer-events-none absolute -right-24 top-1/2 h-[140%] w-1/2 -translate-y-1/2 -skew-x-12 bg-linear-to-b from-brand-500/30 via-brand-600/10 to-transparent" />
 
@@ -222,7 +246,8 @@ const Home = () => {
           )}
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 };
 
