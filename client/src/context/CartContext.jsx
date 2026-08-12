@@ -35,12 +35,12 @@ export const CartProvider = ({ children }) => {
   // no matter where the add happened.
   const addItem = useCallback(
     async (product, quantity = 1) => {
-      await cartService.addToCart(product._id, quantity);
-      await refreshCart();
+      const res = await cartService.addToCart(product._id, quantity);
+      setCart(res.data);
       setToast({ product, quantity });
       setBump((b) => b + 1);
     },
-    [refreshCart]
+    []
   );
 
   const dismissToast = useCallback(() => setToast(null), []);

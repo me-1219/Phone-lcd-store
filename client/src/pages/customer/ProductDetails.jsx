@@ -52,12 +52,8 @@ const ProductDetails = () => {
   }, [id]);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      load();
-      setQuantity(1);
-    }, 0);
-
-    return () => clearTimeout(timeout);
+    load();
+    setQuantity(1);
   }, [load]);
   useEffect(() => {
     if (isAuthenticated) {

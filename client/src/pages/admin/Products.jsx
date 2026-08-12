@@ -8,7 +8,7 @@ import Spinner from "../../components/common/Spinner";
 import ErrorMessage from "../../components/common/ErrorMessage";
 import EmptyState from "../../components/common/EmptyState";
 import { formatPrice } from "../../utils/formatPrice";
-import { QUALITY_GRADES, SCREEN_TYPES } from "../../utils/constants";
+import { QUALITY_GRADES, SCREEN_TYPES, SORT_OPTIONS } from "../../utils/constants";
 import * as productService from "../../services/productService";
 import * as categoryService from "../../services/categoryService";
 import ImageUpload from "../../components/common/ImageUpload";
@@ -31,14 +31,19 @@ const AdminProducts = () => {
   const [form, setForm] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [stockFilter, setStockFilter] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
 
   const loadCategories = () => categoryService.getCategories().then((res) => setCategories(res.data));
 
-  const loadProducts = useCallback(async (page = 1) => {
+  const loadProducts = useCallback(async (page = 1, filters = {}) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await productService.getProducts({ page, limit: 15 });
+      const params = { page, limit: 15, ...filters };
+      const res = await productService.getProducts(params);
       setProducts(res.data);
       setPagination({ page: res.page, pages: res.pages, total: res.total });
     } catch (err) {
@@ -50,8 +55,42 @@ const AdminProducts = () => {
 
   useEffect(() => {
     loadCategories();
-    Promise.resolve().then(loadProducts);
+    Promise.resolve().then(() => loadProducts(1, {}));
   }, [loadProducts]);
+
+  // debounced filter/search: triggers when search or filters change
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const filters = {
+        q: search || undefined,
+        category: categoryFilter || undefined,
+        sort: sortOrder || undefined,
+      };
+      // map high-level stock filter to numeric query params the API can understand
+      if (stockFilter === "in") {
+        filters.minStock = 1;
+      } else if (stockFilter === "out") {
+        filters.maxStock = 0;
+      } else if (stockFilter === "low") {
+        // treat low stock as <= 5
+        filters.maxStock = 5;
+      }
+      loadProducts(1, filters);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [search, categoryFilter, stockFilter, sortOrder, loadProducts]);
+
+  const buildFilters = () => {
+    const filters = {
+      q: search || undefined,
+      category: categoryFilter || undefined,
+      sort: sortOrder || undefined,
+    };
+    if (stockFilter === "in") filters.minStock = 1;
+    else if (stockFilter === "out") filters.maxStock = 0;
+    else if (stockFilter === "low") filters.maxStock = 5;
+    return filters;
+  };
 
   const openCreate = () => {
     setEditingId(null);
@@ -106,7 +145,7 @@ const AdminProducts = () => {
         await productService.createProduct(payload);
       }
       setModalOpen(false);
-      loadProducts(pagination.page);
+      loadProducts(pagination.page, buildFilters());
     } catch (err) {
       setFormError(err.response?.data?.message || "Could not save product.");
     } finally {
@@ -118,7 +157,7 @@ const AdminProducts = () => {
     if (!window.confirm("Delete this product? This cannot be undone.")) return;
     try {
       await productService.deleteProduct(id);
-      loadProducts(pagination.page);
+      loadProducts(pagination.page, buildFilters());
     } catch (err) {
       alert(err.response?.data?.message || "Could not delete product.");
     }
@@ -148,7 +187,7 @@ const [importError, setImportError] = useState("");
     try {
       const res = await productService.bulkCreateProducts(parsed);
       setImportResults(res.data);
-      loadProducts(1);
+      loadProducts(1, buildFilters());
     } catch (err) {
       setImportError(err.response?.data?.message || "Import failed.");
     } finally {
@@ -167,7 +206,7 @@ const [importError, setImportError] = useState("");
     try {
       const res = await productService.bulkCreateProductsFromCsv(importFile);
       setImportResults(res.data);
-      loadProducts(1);
+      loadProducts(1, buildFilters());
     } catch (err) {
       setImportError(err.response?.data?.message || "Import failed.");
     } finally {
@@ -183,15 +222,58 @@ const [importError, setImportError] = useState("");
           <h1 className="font-display text-2xl font-semibold text-ink-950">Products</h1>
           <p className="mt-1 text-sm text-ink-500">{pagination.total} products</p>
         </div>
-        <Button icon={Plus} onClick={openCreate}>Add Product</Button>
-        <Button variant="outline" icon={Upload} onClick={() => setImportOpen(true)}>Import</Button>
+        <div className="flex items-center gap-3">
+          <Input
+            placeholder="Search products..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-64"
+          />
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="h-10 rounded-lg border border-border px-3 text-sm focus:border-brand-500 focus:outline-none"
+          >
+            <option value="">All categories</option>
+            {categories.map((c) => (
+              <option key={c._id} value={c._id}>{c.name}</option>
+            ))}
+          </select>
+
+          <select
+            value={stockFilter}
+            onChange={(e) => setStockFilter(e.target.value)}
+            className="h-10 rounded-lg border border-border px-3 text-sm focus:border-brand-500 focus:outline-none"
+          >
+            <option value="">All stock</option>
+            <option value="in">In stock</option>
+            <option value="low">Low stock</option>
+            <option value="out">Out of stock</option>
+          </select>
+
+          <select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+            className="h-10 rounded-lg border border-border px-3 text-sm focus:border-brand-500 focus:outline-none"
+          >
+            <option value="">Sort</option>
+            {SORT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+
+          <div className="flex items-center gap-2">
+            <Button variant="outline" icon={Upload} onClick={() => setImportOpen(true)}>Import</Button>
+            <Button icon={Plus} onClick={openCreate}>Add Product</Button>
+          </div>
+        </div>
       </div>
 
       <div className="mt-6 overflow-x-auto rounded-xl border border-border bg-white">
         {loading ? (
           <Spinner fullPage label="Loading products" />
         ) : error ? (
-          <ErrorMessage message={error} onRetry={() => loadProducts(pagination.page)} />
+          <ErrorMessage message={error} onRetry={() => loadProducts(pagination.page, buildFilters())} />
         ) : products.length === 0 ? (
           <EmptyState title="No products yet" message="Add your first product to get started." />
         ) : (
@@ -257,7 +339,7 @@ const [importError, setImportError] = useState("");
           {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((p) => (
             <button
               key={p}
-              onClick={() => loadProducts(p)}
+              onClick={() => loadProducts(p, buildFilters())}
               className={`h-8 w-8 rounded-lg text-sm font-medium ${
                 p === pagination.page ? "bg-brand-600 text-white" : "text-ink-700 hover:bg-muted"
               }`}
