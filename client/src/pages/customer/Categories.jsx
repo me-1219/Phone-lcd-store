@@ -24,7 +24,18 @@ const Categories = () => {
   };
 
   useEffect(() => {
-    load();
+    const fetchCategories = async () => {
+      try {
+        const res = await categoryService.getCategories();
+        setCategories(res.data);
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to load categories.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   return (

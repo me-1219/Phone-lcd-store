@@ -1,5 +1,5 @@
 
-import { useState, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Search,
@@ -21,14 +21,25 @@ import { getDisplayName } from "../../utils/getDisplayName";
 import { useAuth } from "../../hooks/useAuth";
 import { CartContext } from "../../context/CartContext";
 import NotificationBell from "./NotificationBell";
+import { useAuthModal } from "../../hooks/useAuthModal.js";
+
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const { openLogin } = useAuthModal();
 
   const { isAuthenticated, user, logout } = useAuth();
-  const { itemCount } = useContext(CartContext);
+  const { itemCount, bump } = useContext(CartContext);
+  const [bouncing, setBouncing] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (bump === 0) return;
+    setBouncing(true);
+    const timer = setTimeout(() => setBouncing(false), 400);
+    return () => clearTimeout(timer);
+  }, [bump]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -131,7 +142,7 @@ const Navbar = () => {
               aria-label="Cart"
               className="relative rounded-lg p-2.5 text-ink-700 hover:bg-muted hover:text-ink-950"
             >
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCart className={`h-5 w-5 ${bouncing ? "animate-cart-bump" : ""}`} />
 
               {itemCount > 0 && (
                 <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-400 px-1 text-[10px] font-semibold text-ink-950">
@@ -195,13 +206,12 @@ const Navbar = () => {
                 )}
               </div>
             ) : (
-              <Link
-                to="/login"
-                className="hidden items-center gap-1.5 rounded-lg bg-brand-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-brand-700 md:flex"
-              >
-                <User className="h-4 w-4" />
-                Login
-              </Link>
+              <button
+              onClick={openLogin}
+              className="hidden items-center gap-1.5 rounded-lg bg-brand-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-brand-700 md:flex"
+            >
+              <User className="h-4 w-4" /> Login
+            </button>
             )}
 
             {/* Mobile menu button */}

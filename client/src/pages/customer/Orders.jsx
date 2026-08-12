@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Package } from "lucide-react";
 import Badge from "../../components/common/Badge";
@@ -22,7 +22,7 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -33,11 +33,12 @@ const Orders = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    load();
-  }, []);
+    const timeoutId = window.setTimeout(load, 0);
+    return () => window.clearTimeout(timeoutId);
+  }, [load]);
 
   if (loading) return <Spinner fullPage label="Loading your orders" />;
   if (error) return <div className="mx-auto max-w-2xl px-4 py-16"><ErrorMessage message={error} onRetry={load} /></div>;

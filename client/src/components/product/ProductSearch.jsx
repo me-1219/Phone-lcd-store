@@ -16,7 +16,14 @@ const ProductSearch = ({ value = "", onSearch, placeholder = "Search products...
   }, [inputValue]);
 
   useEffect(() => {
-    setInputValue(value);
+    // Avoid synchronous setState within the effect body which can trigger
+    // cascading renders. Schedule the update asynchronously; use a
+    // functional update so we don't need to include inputValue in deps.
+    const id = setTimeout(() => {
+      setInputValue((current) => (current === value ? current : value));
+    }, 0);
+
+    return () => clearTimeout(id);
   }, [value]);
 
   return (

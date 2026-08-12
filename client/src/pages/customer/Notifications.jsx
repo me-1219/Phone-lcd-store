@@ -17,18 +17,28 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const load = async () => {
-    setLoading(true);
-    try {
-      const res = await notificationService.getMyNotifications();
-      setNotifications(res.data);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    load();
+    let canceled = false;
+
+    const loadNotifications = async () => {
+      setLoading(true);
+      try {
+        const res = await notificationService.getMyNotifications();
+        if (!canceled) {
+          setNotifications(res.data);
+        }
+      } finally {
+        if (!canceled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadNotifications();
+
+    return () => {
+      canceled = true;
+    };
   }, []);
 
   const handleClick = async (n) => {

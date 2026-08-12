@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Pencil, Trash2, Upload, ImageOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload } from "lucide-react";
 import Button from "../../components/common/Button";
 import Input from "../../components/common/Input";
 import Modal from "../../components/common/Modal";
@@ -50,7 +50,7 @@ const AdminProducts = () => {
 
   useEffect(() => {
     loadCategories();
-    loadProducts();
+    Promise.resolve().then(loadProducts);
   }, [loadProducts]);
 
   const openCreate = () => {
@@ -100,7 +100,7 @@ const AdminProducts = () => {
       if (editingId) {
         // Stock is intentionally omitted on edit — manage stock changes
         // through Inventory so every change gets logged in StockMovement.
-        const { stock, ...updatePayload } = payload;
+        const { ...updatePayload } = payload;
         await productService.updateProduct(editingId, updatePayload);
       } else {
         await productService.createProduct(payload);

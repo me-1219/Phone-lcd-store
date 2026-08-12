@@ -28,9 +28,11 @@ const AdminCoupons = () => {
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const load = async () => {
-    setLoading(true);
-    setError(null);
+  const load = async (initial = false) => {
+    if (!initial) {
+      setLoading(true);
+      setError(null);
+    }
     try {
       const res = await couponService.getCoupons();
       setCoupons(res.data);
@@ -42,7 +44,10 @@ const AdminCoupons = () => {
   };
 
   useEffect(() => {
-    load();
+    const loadInitialCoupons = async () => {
+      await load(true);
+    };
+    loadInitialCoupons();
   }, []);
 
   const openCreate = () => {

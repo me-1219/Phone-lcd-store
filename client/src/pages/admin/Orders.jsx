@@ -17,14 +17,6 @@ const STATUSES = [
   "cancelled",
 ];
 
-const STATUS_VARIANT = {
-  pending: "amber",
-  processing: "brand",
-  shipped: "brand",
-  delivered: "success",
-  cancelled: "danger",
-};
-
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [statusFilter, setStatusFilter] = useState("");
@@ -69,7 +61,11 @@ const AdminOrders = () => {
   );
 
   useEffect(() => {
-    load(1);
+    const initialize = async () => {
+      await load(1);
+    };
+
+    initialize();
   }, [load]);
 
   const handleStatusChange = async (orderId, newStatus) => {

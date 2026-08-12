@@ -71,3 +71,25 @@ h1, h2, h3, h4, .font-display {
     transition-duration: 0.01ms !important;
   }
 }
+/* add near the bottom, alongside the existing prefers-reduced-motion block */
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cart-bump {
+  0%, 100% { transform: scale(1); }
+  35% { transform: scale(1.25); }
+  60% { transform: scale(0.95); }
+}
+
+.animate-cart-bump {
+  animation: cart-bump 0.4s ease-out;
+}

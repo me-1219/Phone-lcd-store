@@ -6,7 +6,6 @@ import ErrorMessage from "../../components/common/ErrorMessage";
 import EmptyState from "../../components/common/EmptyState";
 import * as userService from "../../services/userService";
 
-const ROLE_VARIANT = { admin: "brand", staff: "amber", user: "neutral" };
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -14,8 +13,8 @@ const AdminUsers = () => {
   const [error, setError] = useState(null);
   const [busyId, setBusyId] = useState(null);
 
-  const load = async () => {
-    setLoading(true);
+  const load = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     setError(null);
     try {
       const res = await userService.getUsers();
@@ -28,7 +27,9 @@ const AdminUsers = () => {
   };
 
   useEffect(() => {
-    load();
+    // avoid synchronous setState in effect by scheduling load asynchronously
+    const t = setTimeout(() => load(false), 0);
+    return () => clearTimeout(t);
   }, []);
 
   const handleToggleBlock = async (user) => {

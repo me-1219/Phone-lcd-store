@@ -35,9 +35,12 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const load = async () => {
-    setLoading(true);
-    setError(null);
+  const load = async ({ suppressLoading = false } = {}) => {
+    if (!suppressLoading) {
+      setLoading(true);
+      setError(null);
+    }
+
     try {
       const res = await adminService.getDashboardSummary();
       setData(res.data);
@@ -49,7 +52,18 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    load();
+    const initializeDashboard = async () => {
+      try {
+        const res = await adminService.getDashboardSummary();
+        setData(res.data);
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to load dashboard.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void initializeDashboard();
   }, []);
 
   if (loading) return <Spinner fullPage label="Loading dashboard" />;

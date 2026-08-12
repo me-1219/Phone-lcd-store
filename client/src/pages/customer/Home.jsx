@@ -38,9 +38,12 @@ const Home = () => {
   const [productsError, setProductsError] = useState(null);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
 
-  const loadFeatured = async () => {
-    setProductsLoading(true);
-    setProductsError(null);
+  const loadFeatured = async (reset = true) => {
+    if (reset) {
+      setProductsLoading(true);
+      setProductsError(null);
+    }
+
     try {
       const res = await productService.getProducts({ featured: true, limit: 8 });
       setFeaturedProducts(res.data);
@@ -52,7 +55,11 @@ const Home = () => {
   };
 
   useEffect(() => {
-    loadFeatured();
+    const fetchFeatured = async () => {
+      await loadFeatured(false);
+    };
+
+    fetchFeatured();
 
     categoryService
       .getCategories()
@@ -79,13 +86,15 @@ const Home = () => {
         <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
           <div className="max-w-xl">
             <span className="inline-block rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-brand-300">
-              Genuine parts, graded and in stock
+              Genuine Screen Type, Quality and in stock
             </span>
 
-            <h1 className="mt-5 font-display text-4xl font-semibold leading-tight text-white sm:text-5xl">
-              The right screen,
+            <h1 className="mt-5 font-display text-4xl font-semibold leading-tight text-white sm:text-4xl">
+                Misgie LCD
               <br />
-              the first time.
+              <span className="text-2xl font-normal text-gray-50">
+                Merkato Sket Building 3rd Floor 323, Addis Ababa
+              </span>
             </h1>
 
             <p className="mt-4 text-base leading-relaxed text-ink-300 sm:text-lg">

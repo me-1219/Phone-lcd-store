@@ -25,6 +25,16 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
     }
   };
 
+  const handleManualQuantityChange = (e) => {
+    const nextValue = Number(e.target.value);
+    if (Number.isNaN(nextValue)) return;
+
+    const safeQty = Math.min(Math.max(1, nextValue), product.stock);
+    if (safeQty !== quantity) {
+      handleQuantityChange(safeQty);
+    }
+  };
+
   const handleRemove = async () => {
     setRemoving(true);
     try {
@@ -93,9 +103,16 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
             >
               <Minus className="h-3.5 w-3.5" />
             </button>
-            <span className="w-8 text-center text-sm font-medium text-ink-950">
-              {updating ? "…" : quantity}
-            </span>
+            <input
+              type="number"
+              min={1}
+              max={product.stock}
+              value={updating ? quantity : quantity}
+              onChange={handleManualQuantityChange}
+              disabled={updating}
+              className="w-10 border-0 bg-transparent px-1 text-center text-sm font-medium text-ink-950 outline-none [appearance:textfield] [-moz-appearance:textfield]"
+              aria-label="Set quantity"
+            />
             <button
               onClick={() => handleQuantityChange(quantity + 1)}
               disabled={updating || atMaxStock}

@@ -54,8 +54,10 @@ const AdminInventory = () => {
   };
 
   useEffect(() => {
-    loadLowStock();
-    loadMovements();
+    const fetchData = async () => {
+      await Promise.all([loadLowStock(), loadMovements()]);
+    };
+    fetchData();
   }, []);
 
   const openAdjust = (product = null) => {

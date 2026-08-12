@@ -12,7 +12,7 @@ import * as wishlistService from "../../services/wishlistService";
 const Wishlist = () => {
   const { isAuthenticated } = useAuth();
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(isAuthenticated);
   const [error, setError] = useState(null);
 
   const loadWishlist = async () => {
@@ -39,11 +39,13 @@ const Wishlist = () => {
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      loadWishlist();
-    } else {
-      setLoading(false);
+    if (!isAuthenticated) {
+      return;
     }
+
+    void (async () => {
+      await loadWishlist();
+    })();
   }, [isAuthenticated]);
 
   if (!isAuthenticated) {

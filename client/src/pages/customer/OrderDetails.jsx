@@ -42,7 +42,11 @@ const OrderDetails = () => {
   }, [id]);
 
   useEffect(() => {
-    load();
+    const fetchOrder = async () => {
+      await load();
+    };
+
+    fetchOrder();
   }, [load]);
 
   const handleCancel = async () => {
@@ -64,7 +68,7 @@ const OrderDetails = () => {
     setDownloadingInvoice(true);
     try {
       await orderService.downloadInvoice(order._id);
-    } catch (err) {
+    } catch {
       alert("Could not download invoice.");
     } finally {
       setDownloadingInvoice(false);

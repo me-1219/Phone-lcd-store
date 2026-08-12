@@ -2,9 +2,11 @@ import { Link } from "react-router-dom";
 import { X, User, LogOut } from "lucide-react";
 import { CUSTOMER_NAV_LINKS } from "../../utils/constants";
 import { useAuth } from "../../hooks/useAuth";
+import { useAuthModal } from "../../hooks/useAuthModal";
 
 const MobileMenu = ({ open, onClose }) => {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated,  logout } = useAuth();
+  const { openLogin } = useAuthModal();
 
   if (!open) return null;
 
@@ -62,13 +64,15 @@ const MobileMenu = ({ open, onClose }) => {
               </button>
             </>
           ) : (
-            <Link
-              to="/login"
-              onClick={onClose}
+            <button
+              onClick={() => {
+                onClose();
+                openLogin();
+              }}
               className="flex items-center gap-2 rounded-lg bg-brand-600 px-3 py-2.5 text-sm font-medium text-white hover:bg-brand-700"
             >
               <User className="h-4 w-4" /> Login
-            </Link>
+            </button>
           )}
         </nav>
       </div>

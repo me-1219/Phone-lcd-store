@@ -6,7 +6,6 @@ import Button from "../common/Button";
 import { formatPrice } from "../../utils/formatPrice";
 import { CartContext } from "../../context/CartContext";
 import { useAuth } from "../../hooks/useAuth";
-import * as cartService from "../../services/cartService";
 import * as wishlistService from "../../services/wishlistService";
 
 const GRADE_VARIANT = {
@@ -18,7 +17,7 @@ const GRADE_VARIANT = {
 
 const ProductCard = ({ product, isWishlisted = false }) => {
   const { isAuthenticated } = useAuth();
-  const { refreshCart } = useContext(CartContext);
+  const { addItem } = useContext(CartContext);
 
   const [wishlisted, setWishlisted] = useState(isWishlisted);
   const [addingToCart, setAddingToCart] = useState(false);
@@ -52,8 +51,7 @@ const ProductCard = ({ product, isWishlisted = false }) => {
 
     setAddingToCart(true);
     try {
-      await cartService.addToCart(_id, 1);
-      await refreshCart();
+      await addItem(product, 1);
     } catch (err) {
       console.error("Failed to add to cart:", err.response?.data?.message || err.message);
     } finally {

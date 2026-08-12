@@ -62,7 +62,7 @@ const ProductFilter = ({ filters, onChange, categories = [], brands = [], onClos
         >
           <option value="">All categories</option>
           {categories.map((c) => (
-            <option key={c._id} value={c._id}>
+            <option key={c} value={c}>
               {c.name}
             </option>
           ))}

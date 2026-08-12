@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Heart, ShoppingCart, Minus, Plus, Star, ImageOff } from "lucide-react";
+import { Heart, ShoppingCart, Minus, Plus, Star } from "lucide-react";
 import ProductGallery from "../../components/product/ProductGallery";
 import Badge from "../../components/common/Badge";
 import Button from "../../components/common/Button";
@@ -9,7 +9,6 @@ import ErrorMessage from "../../components/common/ErrorMessage";
 import { formatPrice } from "../../utils/formatPrice";
 import * as productService from "../../services/productService";
 import * as reviewService from "../../services/reviewService";
-import * as cartService from "../../services/cartService";
 import * as wishlistService from "../../services/wishlistService";
 import { useAuth } from "../../hooks/useAuth";
 import { useContext } from "react";
@@ -21,7 +20,7 @@ const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { refreshCart } = useContext(CartContext);
+  const { addItem } = useContext(CartContext);
 
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -52,10 +51,13 @@ const ProductDetails = () => {
   }, [id]);
 
   useEffect(() => {
-    load();
-    setQuantity(1);
-  }, [load]);
+    const timeout = setTimeout(() => {
+      load();
+      setQuantity(1);
+    }, 0);
 
+    return () => clearTimeout(timeout);
+  }, [load]);
   useEffect(() => {
     if (isAuthenticated) {
       wishlistService
@@ -84,12 +86,24 @@ const ProductDetails = () => {
   const hasDiscount = discountPrice && discountPrice < price;
   const inStock = stock > 0;
 
+  const handleQuantityInput = (value) => {
+    if (value === "") {
+      setQuantity(1);
+      return;
+    }
+
+    const nextQty = Number(value);
+    if (Number.isNaN(nextQty)) return;
+
+    const safeQty = Math.min(Math.max(1, nextQty), stock);
+    setQuantity(safeQty);
+  };
+
   const handleAddToCart = async () => {
     if (!isAuthenticated) return navigate("/login");
     setAddingToCart(true);
     try {
-      await cartService.addToCart(id, quantity);
-      await refreshCart();
+      await addItem(product, quantity);
     } catch (err) {
       console.error(err.response?.data?.message || err.message);
     } finally {
@@ -129,7 +143,7 @@ const ProductDetails = () => {
       setSubmittingReview(false);
     }
   };
-
+ 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <nav className="mb-6 text-sm text-ink-500">
@@ -204,7 +218,15 @@ const ProductDetails = () => {
               >
                 <Minus className="h-4 w-4" />
               </button>
-              <span className="w-10 text-center font-medium text-ink-950">{quantity}</span>
+              <input
+                type="number"
+                min={1}
+                max={stock}
+                value={quantity}
+                onChange={(e) => handleQuantityInput(e.target.value)}
+                className="w-12 border-0 bg-transparent px-1 text-center font-medium text-ink-950 outline-none [appearance:textfield] [-moz-appearance:textfield]"
+                aria-label="Quantity"
+              />
               <button
                 onClick={() => setQuantity((q) => Math.min(stock, q + 1))}
                 disabled={quantity >= stock}

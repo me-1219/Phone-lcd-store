@@ -70,10 +70,13 @@ const Products = () => {
   }, [filters, resolveCategoryFilter]);
 
   useEffect(() => {
-    loadProducts();
+    const controller = new AbortController();
+    Promise.resolve().then(loadProducts);
+    return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, categories.length]);
 
+   
   const updateFilters = (next) => {
     const params = { ...next };
     delete params.page; // reset pagination on filter change

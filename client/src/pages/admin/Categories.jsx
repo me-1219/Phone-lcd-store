@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Folder } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import Button from "../../components/common/Button";
 import Input from "../../components/common/Input";
 import Modal from "../../components/common/Modal";
@@ -36,7 +36,12 @@ const AdminCategories = () => {
   };
 
   useEffect(() => {
-    load();
+    // Avoid synchronous state updates during effect execution which can cause
+    // cascading renders. Schedule load to run after the current call stack.
+    const t = setTimeout(() => {
+      load();
+    }, 0);
+    return () => clearTimeout(t);
   }, []);
 
   const openCreate = () => {
