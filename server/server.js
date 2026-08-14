@@ -66,7 +66,7 @@ app.use("/api/upload", uploadRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve uploaded files
 // Home Route
 app.get("/", (req, res) => {
-  res.send("Product CRUD API Running...");
+  res.send("Backend or Server API Running...");
 });
 
 const startServer = async () => {
