@@ -218,8 +218,8 @@ const ProductDetails = () => {
             )}
           </div>
 
-          <div className="mt-6 flex items-center gap-3">
-            <div className="flex items-center rounded-lg border border-border">
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex items-center rounded-lg border border-border self-start sm:self-auto">
               <button
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                 disabled={quantity <= 1}
@@ -251,7 +251,8 @@ const ProductDetails = () => {
               disabled={!inStock}
               loading={addingToCart}
               onClick={handleAddToCart}
-              className="flex-1"
+              fullWidth
+              className="w-full sm:flex-1"
             >
               Add to Cart
             </Button>
@@ -261,6 +262,7 @@ const ProductDetails = () => {
               variant="outline"
               aria-label="Toggle wishlist"
               onClick={handleToggleWishlist}
+              className="h-12 w-12 min-w-[48px] p-0 sm:w-auto sm:min-w-0 sm:px-4"
               icon={() => (
                 <Heart className={`h-4 w-4 ${wishlisted ? "fill-danger-500 text-danger-500" : ""}`} />
               )}

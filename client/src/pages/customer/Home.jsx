@@ -127,14 +127,23 @@ const Home = () => {
               time guessing and more time repairing.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/products">
-                <Button size="lg" icon={ArrowRight} className="flex-row-reverse">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Link to="/products" className="w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  icon={ArrowRight}
+                  className="w-full flex-row-reverse sm:w-auto"
+                >
                   Browse Products
                 </Button>
               </Link>
-              <Link to="/categories">
-                <Button size="lg" variant="outline" className="border-white/20 bg-transparent text-white hover:bg-white/10">
+
+              <Link to="/categories" className="w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full border-white/30 bg-white/10 text-white hover:bg-white/20 sm:w-auto"
+                >
                   View Categories
                 </Button>
               </Link>

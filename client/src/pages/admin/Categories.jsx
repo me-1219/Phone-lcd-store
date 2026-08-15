@@ -96,12 +96,12 @@ const AdminCategories = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-semibold text-ink-950">Categories</h1>
           <p className="mt-1 text-sm text-ink-500">{categories.length} categories</p>
         </div>
-        <Button icon={Plus} onClick={openCreate}>Add Category</Button>
+        <Button icon={Plus} onClick={openCreate} className="w-full sm:w-auto">Add Category</Button>
       </div>
 
       <div className="mt-6 overflow-x-auto rounded-xl border border-border bg-white">
@@ -112,30 +112,53 @@ const AdminCategories = () => {
         ) : categories.length === 0 ? (
           <EmptyState title="No categories yet" message="Add your first category." />
         ) : (
-          <table className="w-full min-w-[720px] text-sm">
-            <thead>
-              <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wide text-ink-500">
-                <th className="px-4 py-3">Category</th>
-                <th className="px-4 py-3">Description</th>
-                <th className="px-4 py-3">Image</th>
-                <th className="px-4 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
+          <>
+            <div className="hidden md:block">
+              <table className="w-full min-w-[720px] text-sm">
+                <thead>
+                  <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wide text-ink-500">
+                    <th className="px-4 py-3">Category</th>
+                    <th className="px-4 py-3">Description</th>
+                    <th className="px-4 py-3">Image</th>
+                    <th className="px-4 py-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {categories.map((c) => (
+                    <tr key={c._id}>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="min-w-0">
+                            <p className="truncate font-medium text-ink-950">{c.name}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-ink-700">{c.description || "No description"}</td>
+                      <td className="px-4 py-3 text-ink-700">{c.image ? "Yes" : "No"}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex justify-end gap-1">
+                          <button onClick={() => openEdit(c)} className="rounded-lg p-1.5 text-ink-500 hover:bg-muted hover:text-ink-950">
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button onClick={() => handleDelete(c._id)} className="rounded-lg p-1.5 text-ink-500 hover:bg-red-50 hover:text-danger-500">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="space-y-3 p-3 md:hidden">
               {categories.map((c) => (
-                <tr key={c._id}>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      
-                      <div className="min-w-0">
-                        <p className="truncate font-medium text-ink-950">{c.name}</p>
-                      </div>
+                <div key={c._id} className="rounded-xl border border-border bg-white p-3 shadow-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-medium text-ink-950">{c.name}</p>
                     </div>
-                  </td>
-                  <td className="px-4 py-3 text-ink-700">{c.description || "No description"}</td>
-                  <td className="px-4 py-3 text-ink-700">{c.image ? "Yes" : "No"}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-1">
+                    <div className="flex gap-1">
                       <button onClick={() => openEdit(c)} className="rounded-lg p-1.5 text-ink-500 hover:bg-muted hover:text-ink-950">
                         <Pencil className="h-4 w-4" />
                       </button>
@@ -143,11 +166,22 @@ const AdminCategories = () => {
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
-                  </td>
-                </tr>
+                  </div>
+
+                  <div className="mt-3 space-y-2 text-sm text-ink-700">
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="text-ink-500">Description</span>
+                      <span className="text-right">{c.description || "No description"}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-ink-500">Image</span>
+                      <span>{c.image ? "Yes" : "No"}</span>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
       </div>
 
@@ -175,9 +209,9 @@ const AdminCategories = () => {
           />
         </div>
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
-            <Button type="submit" loading={saving}>{editingId ? "Save Changes" : "Create Category"}</Button>
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+            <Button type="button" variant="outline" onClick={() => setModalOpen(false)} className="w-full sm:w-auto">Cancel</Button>
+            <Button type="submit" loading={saving} className="w-full sm:w-auto">{editingId ? "Save Changes" : "Create Category"}</Button>
           </div>
         </form>
       </Modal>

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { X, User, LogOut } from "lucide-react";
+import { X, User, LogOut, Heart } from "lucide-react";
 import { CUSTOMER_NAV_LINKS } from "../../utils/constants";
 import { useAuth } from "../../hooks/useAuth";
 import { useAuthModal } from "../../hooks/useAuthModal";
@@ -43,6 +43,14 @@ const MobileMenu = ({ open, onClose }) => {
           ))}
 
           <div className="my-2 border-t border-border" />
+
+          <Link
+            to="/wishlist"
+            onClick={onClose}
+            className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-900 hover:bg-muted"
+          >
+            <Heart className="h-4 w-4" /> Wishlist
+          </Link>
 
           {isAuthenticated ? (
             <>

@@ -131,7 +131,7 @@ const Navbar = () => {
             <Link
               to="/wishlist"
               aria-label="Wishlist"
-              className="hidden rounded-lg p-2.5 text-ink-700 hover:bg-muted hover:text-ink-950 sm:flex"
+              className="flex rounded-lg p-2.5 text-ink-700 hover:bg-muted hover:text-ink-950"
             >
               <Heart className="h-5 w-5" />
             </Link>
