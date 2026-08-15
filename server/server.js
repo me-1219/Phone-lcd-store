@@ -32,7 +32,10 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // Middleware
-app.use(cors()); // Allow cross-origin requests
+app.use(cors({
+  origin: "https://msglcd.com",
+  credentials: true, // only needed if you ever use cookies (express-session is in your dependencies, so possibly relevant)
+})); 
 app.use(express.json()); // Parse JSON request bodies
 //app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
@@ -66,7 +69,7 @@ app.use("/api/upload", uploadRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve uploaded files
 // Home Route
 app.get("/", (req, res) => {
-  res.send("Backend or Server API Running...");
+  res.send("Backend or Server API Runnings ...");
 });
 
 const startServer = async () => {
