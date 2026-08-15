@@ -18,10 +18,6 @@ jobs:
           cache: npm
           cache-dependency-path: server/package-lock.json
 
-      - name: Install production dependencies
-        working-directory: server
-        run: npm ci --omit=dev
-
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -34,6 +30,8 @@ jobs:
             **/.git*
             **/.git*/**
             **/.env
+            **/node_modules/**
+            node_modules/**
 
       - name: Prepare restart signal
         run: |
