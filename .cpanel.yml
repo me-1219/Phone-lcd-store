@@ -1,6 +1,0 @@
----
-deployment:
-  tasks:
-    - export APPPATH=/home/msglcdik/repositories/Phone-lcd-store/server
-    - cd $APPPATH && npm install --omit=dev
-    - touch $APPPATH/tmp/restart.txt
