@@ -16,6 +16,8 @@ export const ADMIN_NAV_LINKS = [
   { label: "Coupons", to: "/admin/coupons" },
   { label: "Users", to: "/admin/users" },
 ];
+export const TELEGRAM_USERNAME = "Msglcd"; // swap for your real @username
+export const WHATSAPP_NUMBER = "251962725252";
 export const BUSINESS_PHONE = "+251962725252"; // swap for your real number
 export const BUSINESS_PHONE_DISPLAY = "0962725252";
 export const TELEBIRR_MERCHANT_NUMBER = "0973921904";

@@ -145,7 +145,7 @@ const ProductCard = ({ product, isWishlisted = false }) => {
 
         <div className="mt-auto flex items-end justify-between pt-2">
           <div>
-            <p className="font-mono-data text-base font-semibold text-ink-950">
+            <p className="font-mono-data text-xs font-semibold text-ink-950">
               {formatPrice(displayPrice)}
             </p>
             {hasDiscount && (
@@ -163,7 +163,10 @@ const ProductCard = ({ product, isWishlisted = false }) => {
             onClick={handleAddToCart}
             icon={ShoppingCart}
             aria-label="Add to cart"
-          />
+            className="text-xs"
+          >
+            Add
+          </Button>
         </div>
       </div>
     </Link>

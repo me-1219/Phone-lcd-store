@@ -167,19 +167,18 @@ const ProductDetails = () => {
         )}
       </nav>
 
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-        <ProductGallery images={images} productName={name} />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.2fr]">
+        <div className="lg:max-w-md">
+          <ProductGallery images={images} productName={name} />
+        </div>
 
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-2xl font-semibold text-ink-950">{name}</h1>
+            {category?.name && (
+              <span className="text-sm font-medium text-ink-600">{category.name}</span>
+            )}
             {qualityGrade && <Badge variant={GRADE_VARIANT[qualityGrade] || "neutral"}>{qualityGrade}</Badge>}
-          </div>
-
-          <h1 className="mt-3 font-display text-2xl font-semibold text-ink-950">{name}</h1>
-
-          <div className="mt-2 flex items-center gap-3 text-sm text-ink-500">
-            {brand && <span>Brand: <span className="font-medium text-ink-900">{brand}</span></span>}
-            {sku && <span className="font-mono-data">SKU: {sku}</span>}
           </div>
 
           {numReviews > 0 && (
@@ -191,11 +190,11 @@ const ProductDetails = () => {
           )}
 
           <div className="mt-5 flex items-baseline gap-2">
-            <span className="font-mono-data text-3xl font-semibold text-ink-950">
+            <span className="font-mono-data text-sm font-semibold text-ink-950">
               {formatPrice(displayPrice)}
             </span>
             {hasDiscount && (
-              <span className="font-mono-data text-lg text-ink-300 line-through">
+              <span className="font-mono-data text-xs text-ink-300 line-through">
                 {formatPrice(price)}
               </span>
             )}

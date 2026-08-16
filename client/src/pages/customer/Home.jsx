@@ -117,7 +117,7 @@ const Home = () => {
                 Misgie LCD
               <br />
               <span className="text-2xl font-normal text-gray-50">
-                Merkato Sket Building 3rd Floor 324, Addis Ababa
+                Addis Ababa,Merkato Sket Building 3rd Floor 324 
               </span>
             </h1>
 
@@ -134,7 +134,7 @@ const Home = () => {
                   icon={ArrowRight}
                   className="w-full flex-row-reverse sm:w-auto"
                 >
-                  Browse Products
+                  View Products
                 </Button>
               </Link>
 
@@ -144,7 +144,7 @@ const Home = () => {
                   variant="outline"
                   className="w-full border-white/30 bg-white/10 text-white hover:bg-white/20 sm:w-auto"
                 >
-                  View Categories
+                   Categories
                 </Button>
               </Link>
             </div>
