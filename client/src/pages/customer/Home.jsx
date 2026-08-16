@@ -30,18 +30,18 @@ const localBusinessSchema = {
 const VALUE_PROPS = [
   {
     icon: ShieldCheck,
-    title: "Genuine & OEM stock",
-    text: "Every screen and battery is graded — Original, OEM, or Copy — so you always know exactly what you're buying.",
+    title: "Every grade, clearly marked",
+    text: "Original, Copy, or OEM — each screen and battery is graded honestly so you know exactly what you're selling to your customer.",
   },
   {
     icon: Wrench,
-    title: "Built for technicians",
-    text: "Filter by brand, model, and quality grade to find the exact part your repair needs, fast.",
+    title: "Built for technicians, by Merkato",
+    text: "Search by brand, model, and quality grade to find the exact part for your repair — no digging through mismatched stock.",
   },
   {
     icon: Truck,
-    title: "Stocked in Addis Ababa",
-    text: "No waiting on overseas shipping for the parts that move fastest — ordered today, in your hands quickly.",
+    title: "In stock at Merkato, ready now",
+    text: "Skip the wait on imports — the parts that move fastest are stocked right here and ready to grab today.",
   },
 ];
 
