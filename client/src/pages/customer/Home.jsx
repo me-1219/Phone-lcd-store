@@ -122,7 +122,7 @@ const Home = () => {
             </h1>
 
             <p className="mt-4 text-base leading-relaxed text-ink-300 sm:text-lg">
-              Misgie LCD stocks replacement screens, batteries, and phone
+              Misgie Touch screens replacement, batteries, and phone
               parts by brand, model, and quality grade — so you spend less
               time guessing and more time repairing.
             </p>
