@@ -117,7 +117,7 @@ const Home = () => {
                 Misgie LCD
               <br />
               <span className="text-2xl font-normal text-gray-50">
-                Merkato Sket Building 3rd Floor 323, Addis Ababa
+                Merkato Sket Building 3rd Floor 324, Addis Ababa
               </span>
             </h1>
 
