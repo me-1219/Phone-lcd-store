@@ -74,7 +74,7 @@ const ProductDetails = () => {
   }
 
   const {
-    name, brand, compatibleModels = [], qualityGrade, screenType,
+    name, brand, compatibleModels = [], qualityGrade,
     description, price, discountPrice, stock, sku, images = [],
     category, rating, numReviews,
   } = product;
@@ -173,7 +173,6 @@ const ProductDetails = () => {
         <div>
           <div className="flex items-center gap-2">
             {qualityGrade && <Badge variant={GRADE_VARIANT[qualityGrade] || "neutral"}>{qualityGrade}</Badge>}
-            {screenType && <Badge variant="neutral">{screenType}</Badge>}
           </div>
 
           <h1 className="mt-3 font-display text-2xl font-semibold text-ink-950">{name}</h1>

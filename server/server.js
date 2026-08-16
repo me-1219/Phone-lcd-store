@@ -33,11 +33,10 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: "https://msglcd.com",
-  credentials: true, // only needed if you ever use cookies (express-session is in your dependencies, so possibly relevant)
+  origin: "https://msglcd.com", // Replace with your frontend URL
+  credentials: true, // Allow cookies to be sent
 })); 
 app.use(express.json()); // Parse JSON request bodies
-//app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 app.use(
   session({

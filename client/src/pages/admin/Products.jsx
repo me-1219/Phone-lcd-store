@@ -8,14 +8,14 @@ import Spinner from "../../components/common/Spinner";
 import ErrorMessage from "../../components/common/ErrorMessage";
 import EmptyState from "../../components/common/EmptyState";
 import { formatPrice } from "../../utils/formatPrice";
-import { QUALITY_GRADES, SCREEN_TYPES, SORT_OPTIONS } from "../../utils/constants";
+import { QUALITY_GRADES, SORT_OPTIONS } from "../../utils/constants";
 import * as productService from "../../services/productService";
 import * as categoryService from "../../services/categoryService";
 import ImageUpload from "../../components/common/ImageUpload";
 
 const EMPTY_FORM = {
   name: "", description: "", brand: "", compatibleModels: "", qualityGrade: "",
-  screenType: "", category: "", sku: "", price: "", discountPrice: "",
+  category: "", sku: "", price: "", discountPrice: "",
   stock: "", imageUrls: [], featured: false,
 };
 
@@ -104,7 +104,7 @@ const AdminProducts = () => {
     setForm({
       name: p.name || "", description: p.description || "", brand: p.brand || "",
       compatibleModels: (p.compatibleModels || []).join(", "),
-      qualityGrade: p.qualityGrade || "", screenType: p.screenType || "",
+      qualityGrade: p.qualityGrade || "",
       category: p.category?._id || "", sku: p.sku || "",
       price: p.price ?? "", discountPrice: p.discountPrice ?? "",
       stock: p.stock ?? "", imageUrls: p.images || [],
@@ -290,7 +290,6 @@ const [importError, setImportError] = useState("");
                     <th className="px-4 py-3">Brand</th>
                     <th className="px-4 py-3">Model</th>
                     <th className="px-4 py-3">Quality</th>
-                    <th className="px-4 py-3"> ScreenType </th>
                     <th className="px-4 py-3">Price</th>
                     <th className="px-4 py-3">Stock</th>
                     <th className="px-4 py-3">Actions</th>
@@ -312,9 +311,6 @@ const [importError, setImportError] = useState("");
                       <td className="px-4 py-3 text-ink-700">{p.compatibleModels?.join(", ") || "—"}</td>
                       <td className="px-4 py-3">
                         {p.qualityGrade ? <Badge variant="brand">{p.qualityGrade}</Badge> : "—"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {p.screenType ? <Badge variant="brand">{p.screenType}</Badge> : "—"}
                       </td>
                       <td className="px-4 py-3 font-mono-data text-ink-950">{formatPrice(p.price)}</td>
                       <td className="px-4 py-3">
@@ -377,7 +373,6 @@ const [importError, setImportError] = useState("");
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {p.qualityGrade && <Badge variant="brand">{p.qualityGrade}</Badge>}
-                      {p.screenType && <Badge variant="brand">{p.screenType}</Badge>}
                     </div>
                   </div>
                 </div>
@@ -453,17 +448,6 @@ const [importError, setImportError] = useState("");
               >
                 <option value="">—</option>
                 {QUALITY_GRADES.map((g) => <option key={g} value={g}>{g}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-ink-900">Screen Type</label>
-              <select
-                value={form.screenType}
-                onChange={(e) => setForm({ ...form, screenType: e.target.value })}
-                className="h-10 w-full rounded-lg border border-border px-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
-              >
-                <option value="">—</option>
-                {SCREEN_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
           </div>

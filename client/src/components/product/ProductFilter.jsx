@@ -2,7 +2,7 @@ import { useState } from "react";
 import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import Button from "../common/Button";
 import Input from "../common/Input";
-import { QUALITY_GRADES, SCREEN_TYPES } from "../../utils/constants";
+import { QUALITY_GRADES } from "../../utils/constants";
 
 const FilterSection = ({ title, children, defaultOpen = true }) => {
   const [open, setOpen] = useState(defaultOpen);
@@ -114,26 +114,6 @@ const ProductFilter = ({ filters, onChange, categories = [], brands = [], onClos
               Clear grade
             </button>
           )}
-        </div>
-      </FilterSection>
-
-      <FilterSection title="Screen Type">
-        <div className="flex flex-wrap gap-2">
-          {SCREEN_TYPES.map((type) => (
-            <button
-              key={type}
-              onClick={() =>
-                update("screenType", filters.screenType === type ? undefined : type)
-              }
-              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                filters.screenType === type
-                  ? "border-brand-600 bg-brand-600 text-white"
-                  : "border-border bg-white text-ink-700 hover:bg-muted"
-              }`}
-            >
-              {type}
-            </button>
-          ))}
         </div>
       </FilterSection>
 

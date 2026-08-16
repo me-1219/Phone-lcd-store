@@ -76,7 +76,6 @@ export const processBulkImport = async (items, adminUserId) => {
                     ? row.compatibleModels.split(";").map((s) => s.trim()).filter(Boolean)
                     : [],
                 qualityGrade: row.qualityGrade,
-                screenType: row.screenType,
                 category: categoryId,
                 sku: row.sku,
                 price: Number(row.price),
@@ -143,7 +142,6 @@ export const createProduct = async (req, res) => {
             brand,
             compatibleModels,
             qualityGrade,
-            screenType,
             category,
             sku,
             price,
@@ -195,7 +193,6 @@ export const createProduct = async (req, res) => {
             brand,
             compatibleModels,
             qualityGrade,
-            screenType,
             category,
             sku,
             price,
@@ -270,7 +267,6 @@ export const getProducts = async (req, res) => {
         }
         if (req.query.brand) filter.brand = req.query.brand;
         if (req.query.qualityGrade) filter.qualityGrade = req.query.qualityGrade;
-        if (req.query.screenType) filter.screenType = req.query.screenType;
         if (req.query.featured) filter.featured = req.query.featured === "true";
 
         // compatibleModels is an array — match if the requested model is in it

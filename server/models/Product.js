@@ -23,12 +23,7 @@ const productSchema = new mongoose.Schema(
 
     qualityGrade: {
       type: String,
-      enum: ["Original", "OEM", "Copy", "Refurbished"],
-    },
-
-    screenType: {
-      type: String,
-      enum: ["LCD", "OLED", "Incell"],
+      enum: ["Meetto", "Incell", "TFT", "Uk", "Oled", "Caa", "Dd", "Jx"],
     },
 
     category: {

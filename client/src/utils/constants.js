@@ -21,8 +21,7 @@ export const BUSINESS_PHONE_DISPLAY = "0962725252";
 export const TELEBIRR_MERCHANT_NUMBER = "0973921904";
 // Matches the enum values on the Product model — kept here so filter UI
 // and any select inputs pull from one source instead of hardcoded strings.
-export const QUALITY_GRADES = ["Original", "OEM", "Copy", "Refurbished"];
-export const SCREEN_TYPES = ["LCD", "OLED", "Incell"];
+export const QUALITY_GRADES = ["Meetto", "Incell", "TFT", "Uk", "Oled", "Caa", "Dd", "Jx"];
 
 export const SORT_OPTIONS = [
   { label: "Newest", value: "-createdAt" },

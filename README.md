@@ -429,7 +429,6 @@ The product listing endpoint supports:
 GET /api/products?category=
 GET /api/products?brand=
 GET /api/products?qualityGrade=
-GET /api/products?screenType=
 GET /api/products?compatibleModel=
 GET /api/products?minPrice=
 GET /api/products?maxPrice=

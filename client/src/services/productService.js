@@ -1,6 +1,6 @@
 import api from "./api";
 
-// filters: { category, brand, qualityGrade, screenType, compatibleModel,
+// filters: { category, brand, qualityGrade, compatibleModel,
 //            minPrice, maxPrice, featured, sort, page, limit }
 export const getProducts = (filters = {}) =>
   api.get("/products", { params: filters }).then((res) => res.data);
