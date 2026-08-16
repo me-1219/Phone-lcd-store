@@ -248,12 +248,23 @@ export const getProducts = async (req, res) => {
         }
 
         if (req.query.category) {
-            const category = await Category.findOne({
-                $or: [
-                    { name: { $regex: req.query.category, $options: "i" } },
-                    { slug: { $regex: req.query.category, $options: "i" } }
-                ]
-            });
+            let category;
+            
+            // Try to find by _id first (if it looks like a MongoDB ObjectId)
+            if (mongoose.Types.ObjectId.isValid(req.query.category)) {
+                category = await Category.findById(req.query.category);
+            }
+            
+            // If not found by ID, try by name or slug
+            if (!category) {
+                category = await Category.findOne({
+                    $or: [
+                        { name: { $regex: req.query.category, $options: "i" } },
+                        { slug: { $regex: req.query.category, $options: "i" } }
+                    ]
+                });
+            }
+            
             if (!category) {
                 return res.status(200).json({
                     success: true,

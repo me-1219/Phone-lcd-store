@@ -45,7 +45,7 @@ const Products = () => {
   const resolveCategoryFilter = useCallback(() => {
     if (!filters.category) return undefined;
     const match = categories.find(
-      (c) => c.slug === filters.category || c._id === filters.category
+      (c) => c.slug === filters.category || c._id=== filters.category
     );
     return match?._id || filters.category;
   }, [filters.category, categories]);
