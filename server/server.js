@@ -21,6 +21,7 @@ import inventoryRoutes from "./routes/inventoryRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import couponRoutes from "./routes/couponRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import announcementRoutes from "./routes/announcementRoutes.js";
 
 import path from "path";
 import { fileURLToPath } from "url";
@@ -33,9 +34,9 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: "https://msglcd.com", // Replace with your frontend URL
-  credentials: true, // Allow cookies to be sent
-})); 
+  origin: "https://msglcd.com",
+  credentials: true, // only needed if you ever use cookies (express-session is in your dependencies, so possibly relevant)
+}));
 app.use(express.json()); // Parse JSON request bodies
 
 app.use(
@@ -63,6 +64,7 @@ app.use("/api/inventory", inventoryRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/coupons", couponRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/announcements", announcementRoutes);
 
 app.use("/api/upload", uploadRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve uploaded files

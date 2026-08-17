@@ -15,7 +15,7 @@ const ProductGallery = ({ images = [], productName = "Product" }) => {
   return (
     <div className="flex flex-col gap-3">
       {/* Main image */}
-      <div className="relative aspect-square w-full overflow-hidden rounded-xl border border-border bg-muted">
+      <div className="relative aspect-square max-w-xs overflow-hidden rounded-sm border border-border bg-muted">
         {hasImages && !imgError[activeIndex] ? (
           <img
             src={images[activeIndex]}
@@ -56,7 +56,7 @@ const ProductGallery = ({ images = [], productName = "Product" }) => {
             <button
               key={img + i}
               onClick={() => setActiveIndex(i)}
-              className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${
+              className={`h-13 w-13 shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${
                 i === activeIndex ? "border-brand-600" : "border-transparent"
               }`}
             >

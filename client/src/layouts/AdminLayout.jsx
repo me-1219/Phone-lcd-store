@@ -15,6 +15,7 @@ import {
   LogOut,
   Store,
   ChevronDown,
+  Megaphone,
 } from "lucide-react";
 import { ADMIN_NAV_LINKS } from "../utils/constants";
 import { useAuth } from "../hooks/useAuth";
@@ -32,6 +33,7 @@ const ICONS = {
   "/admin/reviews": Star,
   "/admin/coupons": Ticket,
   "/admin/users": Users,
+  "/admin/announcements": Megaphone,
 };
 
 const ROLE_VARIANT = { admin: "brand", staff: "amber", user: "neutral" };

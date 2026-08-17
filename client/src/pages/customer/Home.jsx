@@ -10,6 +10,7 @@ import * as productService from "../../services/productService";
 import * as categoryService from "../../services/categoryService";
 import * as wishlistService from "../../services/wishlistService";
 import { useAuth } from "../../hooks/useAuth";
+import AnnouncementsSection from "../../components/customer/AnnouncementsSection";
 
 const BUSINESS_PHONE = "+251-911-234-567";
 
@@ -26,25 +27,6 @@ const localBusinessSchema = {
   telephone: BUSINESS_PHONE,
   priceRange: "$$",
 };
-
-const VALUE_PROPS = [
-  {
-    icon: ShieldCheck,
-    title: "Every grade, clearly marked",
-    text: "Original, Copy, or OEM — each screen and battery is graded honestly so you know exactly what you're selling to your customer.",
-  },
-  {
-    icon: Wrench,
-    title: "Built for technicians, by Merkato",
-    text: "Search by brand, model, and quality grade to find the exact part for your repair — no digging through mismatched stock.",
-  },
-  {
-    icon: Truck,
-    title: "In stock at Merkato, ready now",
-    text: "Skip the wait on imports — the parts that move fastest are stocked right here and ready to grab today.",
-  },
-];
-
 const Home = () => {
   const { isAuthenticated } = useAuth();
 
@@ -151,26 +133,8 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* Value props */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-6 sm:grid-cols-3">
-          {VALUE_PROPS.map(({ icon: Icon, title, text }) => (
-            <div
-              key={title}
-              className="rounded-xl border border-border bg-white p-6 transition-shadow hover:shadow-md"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50">
-                <Icon className="h-5 w-5 text-brand-600" />
-              </div>
-              <h3 className="mt-4 font-display text-base font-semibold text-ink-950">
-                {title}
-              </h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-ink-500">{text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+        <AnnouncementsSection />
+      
 
       {/* Categories strip */}
       <section className="border-t border-border bg-white">

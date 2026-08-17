@@ -33,6 +33,7 @@ import AdminReviews from "../pages/admin/Reviews";
 import AdminCoupons from "../pages/admin/Coupons";
 import AdminUsers from "../pages/admin/Users";
 import AdminProfile from "../pages/admin/Profile";
+import AdminAnnouncements from "../pages/admin/Announcements";
 
 const AppRoutes = () => {
   return (
@@ -75,6 +76,7 @@ const AppRoutes = () => {
           <Route path="users" element={<AdminUsers />} />
           <Route path="notifications" element={<Notifications />} />
           <Route path="profile" element={<AdminProfile />} />
+          <Route path="announcements" element={<AdminAnnouncements />} />
         </Route>
       </Route>
 

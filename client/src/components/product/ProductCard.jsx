@@ -90,7 +90,7 @@ const ProductCard = ({ product, isWishlisted = false }) => {
       className="group flex flex-col overflow-hidden rounded-xl border border-border bg-white transition-shadow hover:shadow-md"
     >
       {/* Image */}
-      <div className="relative aspect-square w-full overflow-hidden bg-muted">
+      <div className="relative aspect-square max-w-xs overflow-hidden bg-muted">
         {images[0] && !imgError ? (
           <img
             src={images[0]}

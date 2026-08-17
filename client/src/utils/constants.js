@@ -15,6 +15,7 @@ export const ADMIN_NAV_LINKS = [
   { label: "Reviews", to: "/admin/reviews" },
   { label: "Coupons", to: "/admin/coupons" },
   { label: "Users", to: "/admin/users" },
+  { label: "Announcements", to: "/admin/announcements" },
 ];
 export const TELEGRAM_USERNAME = "Msglcd"; // swap for your real @username
 export const WHATSAPP_NUMBER = "251962725252";
