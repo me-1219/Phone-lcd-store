@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
 import { Mail, Lock } from "lucide-react";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
 import { useAuth } from "../../hooks/useAuth";
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login, completeGoogleLogin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -16,6 +17,26 @@ const Login = () => {
   const [formError, setFormError] = useState("");
 
   const redirectTo = location.state?.from?.pathname || "/";
+
+  useEffect(() => {
+    const token = new URLSearchParams(window.location.search).get("token");
+    if (!token) return;
+
+    setSubmitting(true);
+
+    completeGoogleLogin(token)
+      .then((user) => {
+        const nextPath = user?.role === "admin" ? "/admin" : redirectTo;
+        navigate(nextPath, { replace: true });
+      })
+      .catch((err) => {
+        setFormError(err.response?.data?.message || "Google login failed.");
+      })
+      .finally(() => {
+        window.history.replaceState({}, "", "/login");
+        setSubmitting(false);
+      });
+  }, [completeGoogleLogin, navigate, redirectTo]);
 
   const validate = () => {
     const next = {};
@@ -47,6 +68,10 @@ const Login = () => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:5000/api/auth/google";
   };
 
   return (
@@ -89,6 +114,27 @@ const Login = () => {
 
           <Button type="submit" fullWidth loading={submitting}>
             Log In
+          </Button>
+
+          <div className="relative my-1">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-[10px] font-medium uppercase tracking-[0.2em] text-ink-400">
+              <span className="bg-white px-2">or</span>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            fullWidth
+            className="mt-0"
+            icon={FcGoogle}
+            onClick={handleGoogleLogin}
+            loading={submitting}
+          >
+            Login with Google
           </Button>
         </form>
 

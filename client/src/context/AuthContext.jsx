@@ -41,6 +41,14 @@ export const AuthProvider = ({ children }) => {
     setUser(user);
   };
 
+  const completeGoogleLogin = useCallback(async (tokenValue) => {
+    localStorage.setItem("token", tokenValue);
+    const userData = await authService.getMe();
+    localStorage.setItem("user", JSON.stringify(userData));
+    setUser(userData);
+    return userData;
+  }, []);
+
   const login = useCallback(async (credentials) => {
     const res = await authService.login(credentials);
     persistSession(res);
@@ -67,15 +75,26 @@ export const AuthProvider = ({ children }) => {
     return userData;
   }, []);
 
+// add alongside the existing login/register/logout:
+const loginWithToken = useCallback(async (token) => {
+  localStorage.setItem("token", token);
+  const res = await authService.getMe();
+  localStorage.setItem("user", JSON.stringify(res.data));
+  setUser(res.data);
+  return res.data;
+}, []);
+
   const value = {
     user,
     loading,
     isAuthenticated: !!user,
     isAdmin: user?.role === "admin",
     login,
+    completeGoogleLogin,
     register,
     logout,
     refreshUser,
+    loginWithToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -34,7 +34,7 @@ import AdminCoupons from "../pages/admin/Coupons";
 import AdminUsers from "../pages/admin/Users";
 import AdminProfile from "../pages/admin/Profile";
 import AdminAnnouncements from "../pages/admin/Announcements";
-
+import OAuthSuccess from "../pages/auth/OAuthSuccess";
 const AppRoutes = () => {
   return (
     <Routes>
@@ -44,7 +44,7 @@ const AppRoutes = () => {
         <Route path="products" element={<Products />} />
         <Route path="products/:id" element={<ProductDetails />} />
         <Route path="categories" element={<Categories />} />
-
+        <Route path="oauth-success" element={<OAuthSuccess />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
         <Route path="verify-email" element={<VerifyEmail />} />

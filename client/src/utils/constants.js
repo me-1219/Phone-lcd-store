@@ -17,6 +17,7 @@ export const ADMIN_NAV_LINKS = [
   { label: "Users", to: "/admin/users" },
   { label: "Announcements", to: "/admin/announcements" },
 ];
+export const GOOGLE_AUTH_URL = `${import.meta.env.VITE_API_URL}/auth/google`;
 export const TELEGRAM_USERNAME = "Msglcd"; // swap for your real @username
 export const WHATSAPP_NUMBER = "251962725252";
 export const BUSINESS_PHONE = "+251962725252"; // swap for your real number

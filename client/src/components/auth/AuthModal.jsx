@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaGoogle } from "react-icons/fa";
 import { Mail, Lock, User, Phone, Hash, MailCheck, KeyRound } from "lucide-react";
 import Modal from "../common/Modal";
 import Input from "../common/Input";
@@ -7,6 +8,7 @@ import Button from "../common/Button";
 import { useAuth } from "../../hooks/useAuth";
 import { useAuthModal } from "../../hooks/useAuthModal";
 import * as authService from "../../services/authService";
+import { GOOGLE_AUTH_URL } from "../../utils/constants";
 
 const EMPTY_LOGIN = { identifier: "", password: "" };
 const EMPTY_REGISTER = { username: "", email: "", phone: "", password: "", confirmPassword: "" };
@@ -249,6 +251,23 @@ const AuthModal = () => {
             Log In
           </Button>
 
+          <div className="relative py-1">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-white px-2 text-ink-500">or</span>
+            </div>
+          </div>
+
+          <a
+            href={GOOGLE_AUTH_URL}
+            className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-border text-sm font-medium text-ink-900 hover:bg-muted"
+          >
+            <FaGoogle className="h-4 w-4 text-[#4285F4]" />
+            Continue with Google
+          </a>
+
           <p className="text-center text-sm text-ink-500">
             Don't have an account?{" "}
             <button
@@ -314,6 +333,23 @@ const AuthModal = () => {
           <Button type="submit" fullWidth loading={submitting}>
             Create Account
           </Button>
+
+          <div className="relative py-1">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-white px-2 text-ink-500">or</span>
+            </div>
+          </div>
+
+          <a
+            href={GOOGLE_AUTH_URL}
+            className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-border text-sm font-medium text-ink-900 hover:bg-muted"
+          >
+            <FaGoogle className="h-4 w-4 text-[#4285F4]" />
+            Continue with Google
+          </a>
 
           <p className="text-center text-sm text-ink-500">
             Already have an account?{" "}
