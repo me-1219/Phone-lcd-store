@@ -320,11 +320,10 @@ Runs the application with Nodemon for automatic restarts during development.
 
 # 🔐 Authentication & Roles
 
-The system supports three roles:
+The system supports two roles:
 
 ```text
 user
-staff
 admin
 ```
 
@@ -333,21 +332,16 @@ admin
 Customers can:
 
 * Browse products
-* Search and filter products
-* Manage their cart
+* Search, filter and sort products
+* Manage their shopping cart
 * Manage their wishlist
-* Create orders
-* View their orders
+* Place orders
+* Track order status and view the order progress
+* Download order invoices
+* Receive notifications when an order status is updated
+* View their order history
 * Review purchased products
 * Manage their profile
-
-### Staff
-
-Staff permissions can be used for operational tasks such as:
-
-* Inventory management
-* Stock adjustments
-* Order processing
 
 ### Admin
 
@@ -355,14 +349,15 @@ Administrators can:
 
 * Manage categories
 * Manage products
-* Manage inventory
+* Manage inventory and stock
 * Manage users
 * Manage orders
-* Manage coupons
-* Manage reviews
+* Manage coupons and discounts
+* Manage product reviews
 * Manage notifications
+* Manage announcements
 * View dashboard analytics
-* Manage staff/admin roles
+* Manage user/admin roles
 
 Registration always creates a normal `user` account. Administrator privileges should be granted manually or by an existing administrator.
 
@@ -854,22 +849,15 @@ make sure `GOOGLE_CALLBACK_URL` exactly matches the callback URL configured in G
 * [x] Inventory management
 * [x] Coupon system
 * [x] Notifications
+* [x] announcements
 * [x] Admin dashboard
 
 ### Future Improvements
 
-* [ ] React/Vite customer storefront
-* [ ] React admin dashboard
-* [ ] Product image upload
 * [ ] Cloudinary integration
-* [ ] Real-time notifications
 * [ ] Swagger/OpenAPI documentation
-* [ ] Automated API testing
-* [ ] Docker deployment
-* [ ] Production deployment
 * [ ] Real payment gateway integration
 * [ ] Supplier and purchase-order management
-* [ ] Multi-warehouse inventory
 * [ ] Live chat / FAQ support
 
 ---
