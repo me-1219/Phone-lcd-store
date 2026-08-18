@@ -27,10 +27,17 @@ const userSchema = new mongoose.Schema({
 
   password: {
     type: String,
-    required: true,
+    required: function () {
+        return !this.googleId; // only required for email/password accounts
+    },
+    minlength: 6,
   },
 
-  googleId: String,
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true, // allows many users with no googleId without a unique-index conflict
+},
 
   role: {
     type: String,
@@ -50,5 +57,18 @@ const userSchema = new mongoose.Schema({
   resetPasswordExpires: Date,
 
 });
+userSchema.pre("save", async function (next) {
+    if (!this.password || !this.isModified("password")) return next();
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+});
+
+// Compare entered password with hashed one — fails safely (returns false,
+// not an error) for Google-only accounts that have no password at all.
+userSchema.methods.matchPassword = async function (enteredPassword) {
+    if (!this.password) return false;
+    return await bcrypt.compare(enteredPassword, this.password);
+};
 
 export default mongoose.model("User", userSchema);

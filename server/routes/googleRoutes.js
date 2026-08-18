@@ -4,27 +4,27 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-// Start Google Login
+const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+// Kicks off the Google consent screen
 router.get(
-  "/google",
-  passport.authenticate("google", {
-    scope: ["profile", "email"],
-  })
+    "/google",
+    passport.authenticate("google", { scope: ["profile", "email"], session: true })
 );
 
-// Callback
+// Google redirects back here after the user approves/denies
 router.get(
-  "/google/callback",
-  passport.authenticate("google", { session: false }),
-  (req, res) => {
-    const token = jwt.sign(
-      { id: req.user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    res.redirect(`http://localhost:5173/dashboard?token=${token}`);
-  }
+    "/google/callback",
+    passport.authenticate("google", {
+        session: true,
+        failureRedirect: `${process.env.FRONTEND_URL}/login?error=google_failed`,
+    }),
+    (req, res) => {
+        const token = generateToken(req.user._id);
+        // Hand off to the frontend via URL param — the frontend route below
+        // reads this once, stores it properly, then scrubs the URL.
+        res.redirect(`${process.env.FRONTEND_URL}/oauth-success?token=${token}`);
+    }
 );
 
 export default router;

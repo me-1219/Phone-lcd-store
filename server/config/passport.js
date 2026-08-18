@@ -1,77 +1,63 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import User from "../models/User.js";
 
-if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
-  throw new Error(
-    "Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET in environment"
-  );
-}
-
 passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL:
-        "http://localhost:5000/api/auth/google/callback",
-    },
-    async (
-      accessToken,
-      refreshToken,
-      profile,
-      done
-    ) => {
-      try {
-        const email =
-          profile.emails[0].value;
+    new GoogleStrategy(
+        {
+            clientID: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            callbackURL: process.env.GOOGLE_CALLBACK_URL,
+        },
+        async (accessToken, refreshToken, profile, done) => {
+            try {
+                // Match an existing account by googleId first, then by email
+                // (so someone who registered with email/password and later
+                // uses "Continue with Google" links to the same account
+                // instead of creating a duplicate).
+                let user = await User.findOne({ googleId: profile.id });
 
-        // Find user by email
-        let user =
-          await User.findOne({
-            email,
-          });
+                if (!user) {
+                    user = await User.findOne({ email: profile.emails?.[0]?.value });
 
-        // User already exists
-        if (user) {
-          // Link Google account if not linked
-          if (!user.googleId) {
-            user.googleId =
-              profile.id;
+                    if (user) {
+                        user.googleId = profile.id;
+                        await user.save();
+                    }
+                }
 
-            await user.save();
-          }
+                if (!user) {
+                    user = await User.create({
+                        googleId: profile.id,
+                        name: profile.displayName,
+                        email: profile.emails?.[0]?.value,
+                        isVerified: true, // Google already verified this email
+                        role: "user",
+                    });
+                }
 
-          return done(
-            null,
-            user
-          );
+                if (!user.isActive) {
+                    return done(null, false, { message: "This account has been blocked." });
+                }
+
+                return done(null, user);
+            } catch (err) {
+                return done(err, null);
+            }
         }
-
-        // Create new user
-        user = await User.create({
-          googleId: profile.id,
-          email,
-          username:
-            profile.displayName.replace(
-              /\s/g,
-              ""
-            ),
-        });
-
-        return done(
-          null,
-          user
-        );
-      } catch (err) {
-        return done(
-          err,
-          null
-        );
-      }
-    }
-  )
+    )
 );
+
+// Only needed because the OAuth handshake briefly uses express-session —
+// nothing else in the app relies on sessions, everything else is JWT.
+passport.serializeUser((user, done) => done(null, user._id));
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await User.findById(id);
+        done(null, user);
+    } catch (err) {
+        done(err, null);
+    }
+});
+
+export default passport;

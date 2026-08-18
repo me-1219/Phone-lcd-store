@@ -34,19 +34,19 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: "https://msglcd.com",
-  credentials: true, // only needed if you ever use cookies (express-session is in your dependencies, so possibly relevant)
+  origin:"https://msglcd.com",
+  credentials: true,
 }));
 app.use(express.json()); // Parse JSON request bodies
 
 app.use(
-  session({
-    secret: "secret",
-    resave: false,
-    saveUninitialized: false,
-  })
+    session({
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false,
+        cookie: { secure: process.env.NODE_ENV === "production", maxAge: 5 * 60 * 1000 }, // short-lived, just for the redirect round-trip
+    })
 );
-
 app.use(passport.initialize());
 app.use(passport.session());
 
