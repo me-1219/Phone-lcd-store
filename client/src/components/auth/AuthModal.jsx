@@ -260,13 +260,13 @@ const AuthModal = () => {
             </div>
           </div>
 
-          <a
+          {/* <a
             href={GOOGLE_AUTH_URL}
             className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-border text-sm font-medium text-ink-900 hover:bg-muted"
           >
             <FaGoogle className="h-4 w-4 text-[#cdf442]" />
             Continue with Google
-          </a>
+          </a> */}
 
           <p className="text-center text-sm text-ink-500">
             Don't have an account?{" "}

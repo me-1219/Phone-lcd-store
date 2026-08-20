@@ -125,7 +125,7 @@ const Login = () => {
             </div>
           </div>
 
-          <Button
+          {/* <Button
             type="button"
             variant="outline"
             fullWidth
@@ -135,7 +135,7 @@ const Login = () => {
             loading={submitting}
           >
             Login with Google
-          </Button>
+          </Button> */}
         </form>
 
         <p className="mt-6 text-center text-sm text-ink-500">
