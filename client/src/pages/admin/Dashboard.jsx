@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  DollarSign, Clock, AlertTriangle, Users, Package, TrendingUp,
+  Banknote, Clock, AlertTriangle, Users, Package, TrendingUp,
   Wallet, Receipt, Tag,
 } from "lucide-react";
 import Spinner from "../../components/common/Spinner";
@@ -95,7 +95,7 @@ const Dashboard = () => {
         Finance
       </h2>
       <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={DollarSign} label="Total Collected" value={formatPrice(normalizedData.totalSales)} tone="success" />
+        <StatCard icon={Banknote} label="Total Collected" value={formatPrice(normalizedData.totalSales)} tone="success" />
         <StatCard icon={Wallet} label="Pending Payments" value={formatPrice(normalizedData.pendingPayments)} tone="amber" />
         <StatCard icon={Receipt} label="Avg. Order Value" value={formatPrice(normalizedData.averageOrderValue)} />
         <StatCard icon={Tag} label="Discounts Given" value={formatPrice(normalizedData.totalDiscountGiven)} />
@@ -109,7 +109,7 @@ const Dashboard = () => {
         <StatCard icon={Clock} label="Pending Orders" value={normalizedData.pendingOrders} tone="amber" />
         <StatCard icon={AlertTriangle} label="Low Stock Items" value={normalizedData.lowStockCount} tone="danger" />
         <StatCard icon={Users} label="Customers" value={normalizedData.totalUsers} />
-        <StatCard icon={Package} label="Active Products" value={normalizedData.totalProducts} />
+        <StatCard icon={Package} label="Items in Stock" value={normalizedData.totalProducts} />
       </div>
 
       {/* Revenue by payment method */}
